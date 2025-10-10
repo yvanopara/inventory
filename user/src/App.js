@@ -10,8 +10,10 @@ import DailySummary from "./pages/saleHistory/DailySummary/DailySummary";
 import WeeklySummary from "./pages/saleHistory/WeeklySummary/WeeklySummary";
 import MonthlySummary from "./pages/saleHistory/MonthlySummary/MonthlySummary";
 
+ // export const backendUrl = "http://localhost:5000";
 
-export const backendUrl = "https://inventory-qd-in.onrender.com";
+  export const backendUrl = "https://inventory2-uexd.onrender.com";
+
 
 
 function App() {

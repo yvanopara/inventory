@@ -24,6 +24,21 @@ app.use("/api/sales", salesRouter);
 app.use("/api/stockMovementRoutes", stockMovementRoutes);
 app.use('/api/user', userRouter);
 
+
+// cors
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000", // Ton frontend local
+    "https://inventory-qd-in.onrender.com", // admin link 
+    "https://inventory2-uexd.onrender.com",  // backend
+    "https://inventory-user-h4bt.onrender.com", //user
+
+  ],
+  credentials: true // si tu utilises cookies ou sessions
+}));
+
+
 // Exemple de route
 app.get("/", (req, res) => {
   res.json({ message: "Hello depuis le backend avec CORS activé 🚀" });
