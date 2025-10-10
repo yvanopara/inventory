@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../api/api"; // ← Utilisation de l'instance api configurée
+import { AuthContext } from "../../context/AuthContext";
+import { api } from "../../api/api";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,14 +17,14 @@ export default function Login() {
       const res = await api.post("/api/user/admin/login", { email, password });
       console.log("Login response:", res.data);
 
-      if (res.data.success) {
-        localStorage.setItem("token", res.data.token);
+      if (res.data.success && res.data.token) {
+        login(res.data.token); // 👈 utilise ton contexte
         navigate("/dashboard");
       } else {
-        setError(res.data.message);
+        setError(res.data.message || "Identifiants incorrects");
       }
     } catch (err) {
-      console.error("Erreur login:", err.response?.data || err.message);
+      console.error("Erreur login:", err);
       setError("Erreur serveur");
     }
   };
