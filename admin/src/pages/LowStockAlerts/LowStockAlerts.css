@@ -1,0 +1,34 @@
+.low-stock-container {
+  padding: 20px;
+}
+
+.low-stock-container h1 {
+  margin-bottom: 20px;
+}
+
+.low-stock-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.low-stock-container li {
+  background-color: #ffe5e5;
+  color: #a00;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 5px;
+  border: 1px solid #f5c2c2;
+}
+
+.low-stock-container button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.low-stock-container button:hover {
+  background-color: #0056b3;
+}

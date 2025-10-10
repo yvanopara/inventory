@@ -1,0 +1,30 @@
+.edit-product-container {
+  padding: 20px;
+}
+
+.edit-product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-product-form label {
+  font-weight: bold;
+}
+
+.edit-product-form input {
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+.edit-product-form button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.edit-product-form button:hover {
+  background-color: #0056b3;
+}

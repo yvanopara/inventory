@@ -1,0 +1,56 @@
+.add-sale-container {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  background: #f7f7f7;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-sale-container h2 {
+  text-align: center;
+  color: #333;
+}
+
+.add-sale-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-sale-form label {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.add-sale-form input,
+.add-sale-form select,
+.add-sale-form textarea {
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-sale-form textarea {
+  resize: vertical;
+}
+
+.add-sale-form button {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-sale-form button:hover {
+  background-color: #218838;
+}
+
+.sale-message {
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+}

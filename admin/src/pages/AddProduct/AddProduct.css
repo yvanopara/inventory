@@ -1,0 +1,31 @@
+.add-product-container {
+  padding: 20px;
+}
+
+.add-product-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+}
+
+.add-product-form label {
+  margin-top: 10px;
+}
+
+.add-product-form input {
+  padding: 8px;
+  margin-top: 5px;
+}
+
+.add-product-form button {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.add-product-form button:hover {
+  background-color: #218838;
+}

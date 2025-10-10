@@ -1,0 +1,38 @@
+.dashboard-container {
+  padding: 30px;
+  max-width: 800px;
+  margin: auto;
+}
+
+.role-text {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.product-list {
+  list-style: none;
+  padding: 0;
+}
+
+.product-list li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.product-list li span {
+  color: #333;
+}
+.add-sale-button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.add-sale-button:hover {
+  background-color: #45a049;
+}

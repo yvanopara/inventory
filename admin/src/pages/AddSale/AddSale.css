@@ -1,0 +1,38 @@
+/* .add-sale-container {
+  padding: 20px;
+}
+
+.add-sale-container h1 {
+  margin-bottom: 20px;
+}
+
+.add-sale-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 400px;
+}
+
+.add-sale-form label {
+  font-weight: bold;
+}
+
+.add-sale-form input,
+.add-sale-form select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.add-sale-form button {
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.add-sale-form button:hover {
+  background-color: #218838;
+} */
