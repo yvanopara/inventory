@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../../../api/api"; // ← chemin corrigé
 import "./WeeklySummary.css";
 
 const WeeklySummary = () => {
@@ -10,10 +10,7 @@ const WeeklySummary = () => {
   useEffect(() => {
     const fetchWeeklySummary = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/sales/summary/weekly",
-          { headers: { token: localStorage.getItem("token") } }
-        );
+        const res = await api.get("/api/sales/summary/weekly"); // URL relative
         setDailySales(res.data.dailySales);
         setSummary(res.data.summary);
       } catch (err) {
@@ -88,10 +85,19 @@ const WeeklySummary = () => {
       <div className="summary-totals">
         <h3>Résumé Total de la semaine :</h3>
         <ul>
-          <li><b>Quantité vendue :</b> {summary.totalQuantity || 0}</li>
-          <li><b>Chiffre d'affaires :</b> {summary.totalRevenue?.toLocaleString() || 0} FCFA</li>
-          <li><b>Profit :</b> {summary.totalProfit?.toLocaleString() || 0} FCFA</li>
-          <li><b>Coût total :</b> {summary.totalCost?.toLocaleString() || 0} FCFA</li>
+          <li>
+            <b>Quantité vendue :</b> {summary.totalQuantity || 0}
+          </li>
+          <li>
+            <b>Chiffre d'affaires :</b>{" "}
+            {summary.totalRevenue?.toLocaleString() || 0} FCFA
+          </li>
+          <li>
+            <b>Profit :</b> {summary.totalProfit?.toLocaleString() || 0} FCFA
+          </li>
+          <li>
+            <b>Coût total :</b> {summary.totalCost?.toLocaleString() || 0} FCFA
+          </li>
         </ul>
       </div>
     </div>

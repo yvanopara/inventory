@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../api/api";
+import axios from "axios";
+import { backendUrl } from "../../api/api"; // ← backendUrl défini ici
 import "./Products.css";
 
 export default function Products() {
@@ -11,7 +12,9 @@ export default function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await api.get("/products");
+        const res = await axios.get(backendUrl + "/api/products", {
+          headers: { token: localStorage.getItem("token") }, // token ajouté
+        });
         setProducts(res.data);
       } catch (err) {
         console.error(err);
@@ -70,9 +73,8 @@ export default function Products() {
                   Historique Stock
                 </button>
                 <button onClick={() => navigate("/sales/add")}>
-  Effectuer une vente
-</button>
-
+                  Effectuer une vente
+                </button>
               </td>
             </tr>
           ))}

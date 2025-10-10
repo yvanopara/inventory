@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { api } from "../../api/api";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { backendUrl } from "../../api/api"; // ← backendUrl défini ici
 import "./AddProduct.css";
 
 export default function AddProduct() {
@@ -52,8 +53,11 @@ export default function AddProduct() {
 
       console.log("Envoi au backend:", formData);
 
-      const res = await api.post("/products", data, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await axios.post(backendUrl + "/api/products", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          token: localStorage.getItem("token"), // 🔹 ajout du token
+        },
       });
 
       console.log("Réponse backend:", res.data);

@@ -75,7 +75,7 @@ const WeeklySalesChart = () => {
           },
           scales: {
             y: { beginAtZero: true },
-            x: { title: { display: true, text: "Jour" } }
+            x: { title: { display: true, text: "Jokur" } }
           }
         }}
       />

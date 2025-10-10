@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../../../api/api"; // ← chemin corrigé
 import "./MonthlySummary.css";
 
 const MonthlySummaryTable = () => {
@@ -10,9 +10,7 @@ const MonthlySummaryTable = () => {
   useEffect(() => {
     const fetchMonthlySummary = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/sales/summary/monthly", {
-          headers: { token: localStorage.getItem("token") },
-        });
+        const res = await api.get("/api/sales/summary/monthly"); // URL relative
         setSummaryData(res.data);
       } catch (err) {
         console.error(err);
@@ -30,9 +28,9 @@ const MonthlySummaryTable = () => {
   if (!summaryData) return null;
 
   // Fusionner toutes les ventes du mois
-  const allSales = summaryData.weeklySummaries.flatMap(week =>
-    week.days.flatMap(day => 
-      day.sales.map(sale => ({
+  const allSales = summaryData.weeklySummaries.flatMap((week) =>
+    week.days.flatMap((day) =>
+      day.sales.map((sale) => ({
         ...sale,
         date: day.date,
       }))
@@ -41,13 +39,24 @@ const MonthlySummaryTable = () => {
 
   return (
     <div className="monthly-table-container">
-      <h2>Résumé mensuel – {summaryData.month} {summaryData.year}</h2>
+      <h2>
+        Résumé mensuel – {summaryData.month} {summaryData.year}
+      </h2>
 
       <div className="month-total">
-        <p><b>Total Quantité :</b> {summaryData.totalSummary.totalQuantity || 0}</p>
-        <p><b>Chiffre d’affaires :</b> {summaryData.totalSummary.totalRevenue || 0} FCFA</p>
-        <p><b>Bénéfice :</b> {summaryData.totalSummary.totalProfit || 0} FCFA</p>
-        <p><b>Coût total :</b> {summaryData.totalSummary.totalCost || 0} FCFA</p>
+        <p>
+          <b>Total Quantité :</b> {summaryData.totalSummary.totalQuantity || 0}
+        </p>
+        <p>
+          <b>Chiffre d’affaires :</b>{" "}
+          {summaryData.totalSummary.totalRevenue || 0} FCFA
+        </p>
+        <p>
+          <b>Bénéfice :</b> {summaryData.totalSummary.totalProfit || 0} FCFA
+        </p>
+        <p>
+          <b>Coût total :</b> {summaryData.totalSummary.totalCost || 0} FCFA
+        </p>
       </div>
 
       <table className="monthly-table">

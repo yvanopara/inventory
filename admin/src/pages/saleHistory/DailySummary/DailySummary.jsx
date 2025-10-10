@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../../../api/api";// ← Utilisation de l'instance api configurée
 import "./DailySummary.css";
 
 const DailySummary = () => {
@@ -10,10 +10,7 @@ const DailySummary = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/sales/summary/daily",
-          { headers: { token: localStorage.getItem("token") } }
-        );
+        const res = await api.get("/api/sales/summary/daily"); // URL relative
         setSummary(res.data.summary);
         setSales(res.data.sales);
       } catch (err) {
@@ -21,6 +18,7 @@ const DailySummary = () => {
         setMessage("Erreur lors du chargement du résumé");
       }
     };
+
     fetchSummary();
   }, []);
 

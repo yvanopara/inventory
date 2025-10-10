@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { api } from "../../api/api";
+import axios from "axios";
+import { backendUrl } from "../../api/api"; // ← backendUrl défini ici
 import "./StockHistory.css";
 
 export default function StockHistory() {
@@ -11,14 +12,20 @@ export default function StockHistory() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await api.get(`/products/stock-history/${id}`);
+        const res = await axios.get(backendUrl + `/products/stock-history/${id}`, {
+          headers: { token: localStorage.getItem("token") }, // token ajouté
+        });
         setHistory(res.data.history);
       } catch (err) {
-        console.error("Erreur récupération historique :", err.response?.data || err);
+        console.error(
+          "Erreur récupération historique :",
+          err.response?.data || err
+        );
       } finally {
         setLoading(false);
       }
     };
+
     fetchHistory();
   }, [id]);
 

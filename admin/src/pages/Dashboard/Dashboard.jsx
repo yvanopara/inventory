@@ -1,7 +1,8 @@
 import { useEffect, useState, useContext } from "react";
-import { api } from "../../api/api";
+import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { backendUrl } from "../../api/api"; // ← backendUrl défini ici
 import "./Dashboard.css";
 
 export default function Dashboard() {
@@ -19,10 +20,14 @@ export default function Dashboard() {
 
     const fetchData = async () => {
       try {
-        const summaryRes = await api.get("http://localhost:5000/api/sales/summary/daily");
+        const summaryRes = await axios.get(backendUrl + "/api/sales/summary/daily", {
+          headers: { token: localStorage.getItem("token") },
+        });
         setSummary(summaryRes.data);
 
-        const alertsRes = await api.get("/products/alerts/low-stock");
+        const alertsRes = await axios.get(backendUrl + "/api/products/alerts/low-stock", {
+          headers: { token: localStorage.getItem("token") },
+        });
         setAlerts(alertsRes.data.alerts || []);
       } catch (err) {
         console.error(err);
@@ -30,7 +35,7 @@ export default function Dashboard() {
     };
 
     fetchData();
-  }, [token]);
+  }, [token, navigate]);
 
   return (
     <div className="dashboard-container">

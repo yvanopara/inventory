@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { api } from "../../api/api";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../api/api"; // ← Utilisation de l'instance api configurée
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const res = await api.post("/user/admin/login", { email, password });
+      const res = await api.post("/api/user/admin/login", { email, password });
       console.log("Login response:", res.data);
 
       if (res.data.success) {
@@ -31,8 +31,20 @@ export default function Login() {
     <div className="login-container">
       <h1>Admin Login</h1>
       <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Mot de passe"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <button type="submit">Se connecter</button>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
