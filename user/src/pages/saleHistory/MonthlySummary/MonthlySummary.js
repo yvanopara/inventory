@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./MonthlySummary.css";
+import { backendUrl } from "../../../App";
+
 
 const MonthlySummaryTable = () => {
   const [summaryData, setSummaryData] = useState(null);
@@ -10,7 +12,7 @@ const MonthlySummaryTable = () => {
   useEffect(() => {
     const fetchMonthlySummary = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/sales/summary/monthly", {
+        const res = await axios.get(`${backendUrl}/api/sales/summary/monthly`, {
           headers: { token: localStorage.getItem("token") },
         });
         setSummaryData(res.data);
@@ -29,7 +31,6 @@ const MonthlySummaryTable = () => {
   if (error) return <p className="error">{error}</p>;
   if (!summaryData) return null;
 
-  // Fusionner toutes les ventes du mois
   const allSales = summaryData.weeklySummaries.flatMap(week =>
     week.days.flatMap(day => 
       day.sales.map(sale => ({

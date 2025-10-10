@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./DailySummary.css";
+import { backendUrl } from "../../../App";
+
 
 const DailySummary = () => {
   const [summary, setSummary] = useState({});
@@ -11,7 +13,7 @@ const DailySummary = () => {
     const fetchSummary = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/sales/summary/daily",
+          `${backendUrl}/api/sales/summary/daily`,
           { headers: { token: localStorage.getItem("token") } }
         );
         setSummary(res.data.summary);

@@ -1,22 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-
 import "./AddSale.css";
 import { AuthContext } from "../../AuthContext";
-
-
 import { useNavigate } from "react-router-dom";
-
-
-
-
+import { backendUrl } from "../../App";
 
 
 const AddSale = () => {
-
-    const navigate = useNavigate();
-
-
+  const navigate = useNavigate();
   const { token } = useContext(AuthContext);
 
   const [products, setProducts] = useState([]);
@@ -30,10 +21,9 @@ const AddSale = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/products");
+        const res = await axios.get(`${backendUrl}/api/products`);
         setProducts(res.data);
       } catch (err) {
         console.error(err);
@@ -49,7 +39,7 @@ const AddSale = () => {
       setMessage("⚠️ Veuillez sélectionner un produit");
       return;
     }
-    
+
     const formData = new FormData();
     formData.append("productId", productId);
     formData.append("variantSize", variantSize);
@@ -61,7 +51,7 @@ const AddSale = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/sales",
+        `${backendUrl}/api/sales`,
         formData,
         { headers: { token } }
       );
@@ -77,7 +67,6 @@ const AddSale = () => {
     } catch (err) {
       console.error(err);
       setMessage(err.response?.data?.message || "❌ Erreur lors de la vente.");
-      
     }
   };
 

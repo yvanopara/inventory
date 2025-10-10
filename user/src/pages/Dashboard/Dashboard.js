@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
+import { backendUrl } from "../../App";
+
 
 const Dashboard = () => {
   const [role, setRole] = useState("");
   const [products, setProducts] = useState([]);
-  const navigate = useNavigate(); // pour navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
@@ -14,7 +16,7 @@ const Dashboard = () => {
 
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/products");
+        const res = await axios.get(`${backendUrl}/api/products`);
         setProducts(res.data);
       } catch (err) {
         console.error(err);

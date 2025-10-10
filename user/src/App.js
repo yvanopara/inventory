@@ -10,7 +10,13 @@ import DailySummary from "./pages/saleHistory/DailySummary/DailySummary";
 import WeeklySummary from "./pages/saleHistory/WeeklySummary/WeeklySummary";
 import MonthlySummary from "./pages/saleHistory/MonthlySummary/MonthlySummary";
 
+
+export const backendUrl = "https://inventory-qd-in.onrender.com";
+
+
 function App() {
+
+  
   return (
     <AuthProvider>
       <Router>

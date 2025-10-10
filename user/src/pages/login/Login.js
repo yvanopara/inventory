@@ -1,27 +1,27 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
 import "./Login.css";
 import { AuthContext } from "../../AuthContext";
+import { backendUrl } from "../../App";
+ // 🔹 Import du lien backend
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  
   const { login } = useContext(AuthContext);
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/user/login", {
+      const res = await axios.post(`${backendUrl}/api/user/login`, {
         email,
         password,
       });
 
       if (res.data.success) {
-        login(res.data.token); // ← Sauvegarde du token dans le contexte
+        login(res.data.token); // Sauvegarde du token dans le contexte
         setMessage("Connexion réussie ✅");
         navigate("/dashboard");
       } else {
@@ -29,6 +29,7 @@ export default function Login() {
       }
     } catch (error) {
       setMessage("Erreur de connexion ⚠️");
+      console.error(error);
     }
   };
 

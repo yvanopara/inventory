@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { backendUrl } from "../../api/api"; // ← backendUrl défini ici
+import { backendUrl } from "../../api/api";
 import "./Products.css";
 
 export default function Products() {
@@ -13,7 +13,7 @@ export default function Products() {
     const fetchProducts = async () => {
       try {
         const res = await axios.get(backendUrl + "/api/products", {
-          headers: { token: localStorage.getItem("token") }, // token ajouté
+          headers: { token: localStorage.getItem("token") },
         });
         setProducts(res.data);
       } catch (err) {
@@ -30,7 +30,13 @@ export default function Products() {
 
   return (
     <div className="products-container">
-      <h1>Liste des Produits</h1>
+      <div className="products-header">
+        <h1>Liste des Produits</h1>
+        <button className="add-product-btn" onClick={() => navigate("/products/add")}>
+          ➕ Ajouter un produit
+        </button>
+      </div>
+
       <table className="products-table">
         <thead>
           <tr>
@@ -59,16 +65,12 @@ export default function Products() {
               <td>{product.totalStock}</td>
               <td>{product.sellingPrice} FCFA</td>
               <td>
-                <button
-                  onClick={() => navigate(`/products/edit/${product._id}`)}
-                >
+                <button onClick={() => navigate(`/products/edit/${product._id}`)}>
                   Modifier
                 </button>
                 <button
                   style={{ marginLeft: "5px" }}
-                  onClick={() =>
-                    navigate(`/products/history/${product._id}`)
-                  }
+                  onClick={() => navigate(`/products/history/${product._id}`)}
                 >
                   Historique Stock
                 </button>
