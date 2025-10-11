@@ -29,7 +29,7 @@ const WeeklySalesChart = () => {
   useEffect(() => {
     const fetchWeeklySummary = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/sales/summary/weekly"); // adapter le chemin API
+        const res = await axios.get("https://inventory2-uexd.onrender.com/api/sales/summary/weekly"); // adapter le chemin API
         const data = res.data;
 
         // Extraire les jours et les ventes
