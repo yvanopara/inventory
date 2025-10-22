@@ -12,7 +12,7 @@ export default function StockHistory() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await axios.get(backendUrl + `/products/stock-history/${id}`, {
+        const res = await axios.get(backendUrl + `/api/products/stock-history/${id}`, { 
           headers: { token: localStorage.getItem("token") }, // token ajouté
         });
         setHistory(res.data.history);

@@ -17,7 +17,7 @@ const router = express.Router();
 // ➝ Ajouter une vente avec une image (optionnelle)
 router.post("/",userAuth, upload.single("proofImage"), addSale);
 
-// ➝ Résumé des ventes du jour
+// ➝ Résumé des ventes du jour 
 router.get("/summary/daily", getDailySummary);
 
 // ➝ Résumé des ventes de la semaine

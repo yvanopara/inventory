@@ -268,18 +268,20 @@ export const getWeeklySummary = async (req, res) => {
 
 export const getMonthlySummary = async (req, res) => {
   try {
-    // Définir le début et la fin du mois courant
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     start.setHours(0, 0, 0, 0);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     end.setHours(23, 59, 59, 999);
 
-    // Récupérer toutes les ventes actives du mois
-    const sales = await saleModel.find({
-      date: { $gte: start, $lte: end },
-      status: "active",
-    });
+    // ✅ Peupler le produit pour avoir son image et nom
+    const sales = await saleModel
+      .find({
+        date: { $gte: start, $lte: end },
+        status: "active",
+      })
+      .populate("productId", "name image") // très important
+      .sort({ date: 1 });
 
     if (!sales.length) {
       return res.status(200).json({
@@ -287,6 +289,7 @@ export const getMonthlySummary = async (req, res) => {
         month: now.toLocaleString("fr-FR", { month: "long" }),
         year: now.getFullYear(),
         weeklySummaries: [],
+        dailySales: {},
         totalSummary: { totalSales: 0, totalItems: 0, averagePerSale: 0 },
       });
     }
@@ -294,9 +297,19 @@ export const getMonthlySummary = async (req, res) => {
     // === Étape 1 : regrouper les ventes par jour ===
     const salesByDay = {};
     sales.forEach((sale) => {
-      const dayKey = new Date(sale.date).toISOString().split("T")[0]; // ex: "2025-10-06"
+      const dayKey = new Date(sale.date).toISOString().split("T")[0];
       if (!salesByDay[dayKey]) salesByDay[dayKey] = [];
-      salesByDay[dayKey].push(sale);
+      salesByDay[dayKey].push({
+        productPhoto: sale.productId?.image || null,
+        productName: sale.productName || sale.productId?.name || "Produit inconnu",
+        quantity: sale.quantity,
+        proofImage: sale.proofImage || null,
+        revenue: sale.finalPrice || 0,
+        profit: sale.profit || 0,
+        cost: sale.totalCost || 0,
+        status: sale.status,
+        date: sale.date,
+      });
     });
 
     // === Étape 2 : regrouper les jours par semaine ===
@@ -308,12 +321,11 @@ export const getMonthlySummary = async (req, res) => {
 
     sortedDays.forEach((day, index) => {
       const dateObj = new Date(day);
-      const dayOfWeek = dateObj.getDay(); // 0 = dimanche, 1 = lundi...
+      const dayOfWeek = dateObj.getDay();
       if (currentWeekStart === null) currentWeekStart = day;
 
       currentWeek.push({ date: day, sales: salesByDay[day] });
 
-      // Si fin de semaine (dimanche ou dernier jour du mois)
       const isLastDay = index === sortedDays.length - 1;
       if (dayOfWeek === 0 || isLastDay) {
         weeks.push({
@@ -331,14 +343,14 @@ export const getMonthlySummary = async (req, res) => {
       }
     });
 
-    // === Étape 3 : total du mois ===
     const totalSummary = computeSummary(sales);
 
-    // === Étape 4 : réponse finale ===
+    // === Réponse finale avec dailySales inclus pour le graphique ===
     res.status(200).json({
       month: now.toLocaleString("fr-FR", { month: "long" }),
       year: now.getFullYear(),
       weeklySummaries: weeks,
+      dailySales: salesByDay, // ← ajouté pour le graphique mensuel
       totalSummary,
     });
   } catch (err) {
@@ -349,6 +361,8 @@ export const getMonthlySummary = async (req, res) => {
     });
   }
 };
+
+
 
 
 // --- Réserver une commande ---

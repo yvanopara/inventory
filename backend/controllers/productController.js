@@ -29,19 +29,36 @@ export const checkLowStock = (product) => {
   return alerts;
 };
 
-// --- Récupérer toutes les alertes de stock faible ---
+// --- Fonction pour récupérer toutes les alertes de stock faible ---
 export const getLowStockAlerts = async (req, res) => {
   try {
+    // 1️⃣ On récupère tous les produits dans la base de données
     const products = await Product.find();
+
+    // 2️⃣ On crée un tableau vide pour stocker les alertes
     let alerts = [];
 
-    products.forEach(p => {
-      alerts = alerts.concat(checkLowStock(p));
+    // 3️⃣ Pour chaque produit trouvé dans la base
+    for (let product of products) {
+     
+      const productAlerts = checkLowStock(product);
+
+      // On ajoute ces alertes dans le tableau général "alerts"
+      alerts = alerts.concat(productAlerts);
+    }
+
+    res.status(200).json({
+      message: "Alertes de stock faible récupérées avec succès",
+      alerts: alerts,
     });
 
-    res.status(200).json({ alerts });
   } catch (error) {
-    res.status(500).json({ message: "Erreur lors de la récupération des alertes", error: error.message });
+    // 5️⃣ Si une erreur se produit, on la capture ici
+    // et on renvoie une réponse d’erreur
+    res.status(500).json({
+      message: "Erreur lors de la récupération des alertes de stock faible",
+      error: error.message,
+    });
   }
 };
 
@@ -80,6 +97,7 @@ export const addProduct = async (req, res) => {
       sellingPrice,
       discount,
       stock,
+      minStock,          // ← ajouté pour le produit simple
       hasVariants,
       sizes
     } = req.body;
@@ -88,6 +106,16 @@ export const addProduct = async (req, res) => {
     if (hasVariants === "true" && sizes) {
       try {
         parsedSizes = JSON.parse(sizes);
+
+        // Assurer que chaque variante a un minStock (par défaut 0 si absent)
+        parsedSizes = parsedSizes.map(v => ({
+          ...v,
+          minStock: v.minStock !== undefined ? Number(v.minStock) : 0,
+          stock: Number(v.stock),
+          costPrice: Number(v.costPrice),
+          sellingPrice: Number(v.sellingPrice),
+          discount: Number(v.discount) || 0
+        }));
       } catch (e) {
         return res.status(400).json({ message: "Erreur de format pour sizes", error: e.message });
       }
@@ -101,10 +129,12 @@ export const addProduct = async (req, res) => {
       sellingPrice: Number(sellingPrice),
       discount: Number(discount) || 0,
       stock: Number(stock) || 0,
+      minStock: Number(minStock) || 0, // ← ajouté pour le produit simple
       hasVariants: hasVariants === "true",
       sizes: parsedSizes
     };
 
+    // Upload image sur Cloudinary si fichier présent
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, { folder: "products" });
       productData.image = result.secure_url;
@@ -114,6 +144,7 @@ export const addProduct = async (req, res) => {
     const product = new Product(productData);
     await product.save();
 
+    // Création d'un mouvement de stock
     await StockMovement.create({
       productId: product._id,
       productName: product.name,
@@ -130,6 +161,7 @@ export const addProduct = async (req, res) => {
     res.status(400).json({ message: "Erreur lors de l'ajout du produit", error: error.message });
   }
 };
+
 
 // --- Récupérer tous les produits ---
 export const getAllProducts = async (req, res) => {
@@ -197,7 +229,7 @@ export const modifyStock = async (req, res) => {
     let { quantity, variantSize } = req.body;
 
     quantity = Number(quantity);
-    if (isNaN(quantity)) 
+    if (isNaN(quantity))
       return res.status(400).json({ message: "La quantité doit être un nombre" });
 
     const product = await Product.findById(productId);

@@ -74,9 +74,9 @@ export default function Products() {
                 >
                   Historique Stock
                 </button>
-                <button onClick={() => navigate("/sales/add")}>
+                {/* <button onClick={() => navigate("/sales/add")}>
                   Effectuer une vente
-                </button>
+                </button> */}
               </td>
             </tr>
           ))}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { backendUrl } from "../../api/api"; // 🔹 Import de ton backendUrl
+import { backendUrl } from "../../api/api";
 import "./EditProduct.css";
 
 export default function EditProduct() {
@@ -16,13 +16,13 @@ export default function EditProduct() {
     sellingPrice: "",
     discount: 0,
     stock: "",
+    minStock: "", // 🔹 Ajout du minStock
     hasVariants: false,
     sizes: [],
   });
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Récupération du produit
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -38,6 +38,7 @@ export default function EditProduct() {
           sellingPrice: res.data.sellingPrice || "",
           discount: res.data.discount || 0,
           stock: res.data.stock || "",
+          minStock: res.data.minStock || "", // 🔹 Récupération minStock
           hasVariants: res.data.hasVariants || false,
           sizes: res.data.sizes || [],
         });
@@ -51,7 +52,6 @@ export default function EditProduct() {
     fetchProduct();
   }, [id]);
 
-  // 🔹 Gestion du changement dans les inputs
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -60,7 +60,12 @@ export default function EditProduct() {
     });
   };
 
-  // 🔹 Envoi des modifications
+  const handleSizeChange = (index, field, value) => {
+    const updatedSizes = [...formData.sizes];
+    updatedSizes[index][field] = value;
+    setFormData({ ...formData, sizes: updatedSizes });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -73,6 +78,7 @@ export default function EditProduct() {
       data.append("sellingPrice", formData.sellingPrice);
       data.append("discount", formData.discount);
       data.append("stock", formData.stock);
+      data.append("minStock", formData.minStock); // 🔹 Envoi minStock
       data.append("hasVariants", formData.hasVariants);
 
       if (formData.hasVariants && formData.sizes.length > 0) {
@@ -97,17 +103,16 @@ export default function EditProduct() {
     }
   };
 
-  // 🔹 Modification du stock uniquement
   const handleStockUpdate = async () => {
     try {
       const res = await axios.patch(
         `${backendUrl}/api/products/modify/stock/${id}`,
-        { quantity: Number(formData.stock) },
+        { quantity: Number(formData.stock), minStock: Number(formData.minStock) }, // 🔹 Ajout minStock
         { headers: { token: localStorage.getItem("token") } }
       );
 
       console.log("✅ Stock modifié :", res.data);
-      alert("Stock mis à jour !");
+      alert("Stock et minimum stock mis à jour !");
       setFormData({ ...formData, stock: "" });
     } catch (err) {
       console.error("❌ Erreur modification stock :", err.response?.data || err);
@@ -147,7 +152,13 @@ export default function EditProduct() {
             onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
             placeholder="Quantité à ajouter"
           />
-          <button type="button" onClick={handleStockUpdate}>Ajouter</button>
+          <input
+            type="number"
+            value={formData.minStock}
+            onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
+            placeholder="Stock minimum"
+          />
+          <button type="button" onClick={handleStockUpdate}>Mettre à jour</button>
         </div>
         <p>Stock actuel : {formData.stock}</p>
 

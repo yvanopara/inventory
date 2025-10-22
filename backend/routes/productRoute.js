@@ -27,9 +27,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // --- Routes CRUD ---
+
 productRouter.post("/", adminAuth, upload.single("image"), addProduct);        // Ajouter un produit avec image
 productRouter.get("/", getAllProducts);                             // Récupérer tous les produits
-productRouter.get("/:id", getProductById);                          // Récupérer un produit par ID
+
 productRouter.put("/:id", upload.single("image"), updateProduct);   // Mettre à jour un produit avec image
 productRouter.delete("/:id",adminAuth, deleteProduct);                        // Supprimer un produit
 productRouter.patch("/modify/stock/:productId", modifyStock);
@@ -41,6 +42,6 @@ productRouter.patch("/modify/price/:productId", modifyPrice);
 productRouter.get("/alerts/low-stock", getLowStockAlerts);
 
 // Historique des mouvements de stock
-productRouter.get("/stock-history/:productId", getStockHistory);
-
+productRouter.get("/stock-history/:productId", getStockHistory);  
+productRouter.get("/:id", getProductById);                          // Récupérer un produit par ID
 export default productRouter;

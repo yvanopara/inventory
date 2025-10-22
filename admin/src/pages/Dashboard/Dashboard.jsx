@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { backendUrl } from "../../api/api"; // ← backendUrl défini ici
 import "./Dashboard.css";
 
-export default function Dashboard() {
+export default function Dashboard() { 
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -22,8 +22,10 @@ export default function Dashboard() {
       try {
         const summaryRes = await axios.get(backendUrl + "/api/sales/summary/daily", {
           headers: { token: localStorage.getItem("token") },
+        
         });
-        setSummary(summaryRes.data);
+        setSummary(summaryRes.data.summary);
+        console.log(summaryRes)
 
         const alertsRes = await axios.get(backendUrl + "/api/products/alerts/low-stock", {
           headers: { token: localStorage.getItem("token") },

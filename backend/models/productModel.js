@@ -44,7 +44,7 @@ const productSchema = new mongoose.Schema(
 
     // Suivi global des ventes
     totalSold: { type: Number, default: 0 },   
-    lastSoldAt: { type: Date },                
+    lastSoldAt: { type: Date },                 
 
     // Statistiques stock
     totalStock: { type: Number, default: 0 },  
