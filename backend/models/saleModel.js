@@ -3,31 +3,35 @@ import mongoose from "mongoose";
 const saleSchema = new mongoose.Schema(
   {
     productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
-    variantSize: { type: String }, // optionnel (null si produit simple)
+    variantSize: { type: String },
+    quantity: { type: Number, required: true },
+    productName: { type: String },
 
-    date: { type: Date, default: Date.now },
-    quantity: { type: Number, required: true }, // ✅ unique définition
-
-    productName: { type: String }, // ajoutémvx
-
-    sellingPrice: { type: Number, required: true }, // prix de vente unitaire
+    sellingPrice: { type: Number, required: true },
     discount: { type: Number, default: 0 },
-    totalCost: { type: Number, required: true }, // coût cumulé pour cette vente
-    costPrice: { type: Number, required: true }, // prix de revient du produit ou variante
-    profit: { type: Number, required: true }, // (sellingPrice - costPrice - discount) * quantity
-    comment: { type: String, trim: true }, // optionnel
-    finalPrice: { type: Number }, // (sellingPrice - discount) * quantity
-    revenue: { type: Number }, // montant total encaissé
+    totalCost: { type: Number, required: true },
+    costPrice: { type: Number, required: true },
+    profit: { type: Number, required: true },
+    comment: { type: String, trim: true },
+    finalPrice: { type: Number },
+    revenue: { type: Number },
 
-    customerPhone: { type: String, trim: true }, // numéro du client
+    customerPhone: { type: String, trim: true },
+    proofImage: { type: String },
 
-    proofImage: { type: String }, // URL de l'image (Cloudinary ou dossier local)
-
-    status: { type: String, enum: ["active", "cancelled"], default: "active" },
-    cancelledAt: { type: Date },
+    // ✅ Champs pour la réservation
+    status: {
+      type: String,
+      enum: ["active", "cancelled", "reserved", "delivered"], // <-- ajout “reserved” et “delivered”
+      default: "active"
+    },
+    isReserved: { type: Boolean, default: false },
+    deliveryDate: { type: Date },
+    reservedAt: { type: Date },
+    cancelledAt: { type: Date }
   },
   { timestamps: true }
 );
 
-const Sale = mongoose.models.Sale || mongoose.model("Sale", saleSchema);
-export default Sale;
+const saleModel = mongoose.models.Sale || mongoose.model("Sale", saleSchema);
+export default saleModel;

@@ -3,9 +3,12 @@ import {
   addSale, 
   cancelSale, 
   deliverSale, 
+
+  getAllSales, 
  
   getDailySummary, 
   getMonthlySummary, 
+  getReservedSales, 
   getWeeklySummary,   // ✅ on importe la nouvelle fonction
   reserveSale
 } from "../controllers/salesController.js";
@@ -31,8 +34,9 @@ router.patch("/cancel/:saleId", cancelSale);
 router.post("/reserve", userAuth, reserveSale);
 
 // ➝ Livrer une commande réservée
-router.patch("/deliver/:saleId", deliverSale);
+router.patch("/deliver/:saleId",userAuth, deliverSale); 
 
-
+ router.get("/get-all", getAllSales); 
+ router.get("/get-reserve", getReservedSales); 
 
 export default router;

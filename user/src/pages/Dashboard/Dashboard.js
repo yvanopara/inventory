@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import { backendUrl } from "../../App";
+import ReservedList from "../../components/ReservedList/ReservedList";
 
 
 const Dashboard = () => {
@@ -47,6 +48,7 @@ const Dashboard = () => {
           </li>
         ))}
       </ul>
+      <ReservedList/>
     </div>
   );
 };

@@ -10,9 +10,15 @@ import DailySummary from "./pages/saleHistory/DailySummary/DailySummary";
 import WeeklySummary from "./pages/saleHistory/WeeklySummary/WeeklySummary";
 import MonthlySummary from "./pages/saleHistory/MonthlySummary/MonthlySummary";
 
-//  export const backendUrl = "http://localhost:5000";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-  export const backendUrl = "https://inventory2-uexd.onrender.com";
+import ReserveSales from "./pages/ReserveSale/ReserveSale";
+
+
+ export const backendUrl = "http://localhost:5000";
+
+ //  export const backendUrl = "https://inventory2-uexd.onrender.com";
 
 
 
@@ -21,6 +27,7 @@ function App() {
   
   return (
     <AuthProvider>
+      <ToastContainer position="top-center" />
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />
@@ -29,6 +36,11 @@ function App() {
           <Route path="/daily-summary" element={<DailySummary />} />
           <Route path="/weekly-summary" element={<WeeklySummary />} />
           <Route path="/monthly-summary" element={<MonthlySummary />} />
+
+          <Route path="/reservation" element={<ReserveSales />} />
+
+      
+
         </Routes>
       </Router>
     </AuthProvider>

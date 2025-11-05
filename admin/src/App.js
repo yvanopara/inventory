@@ -19,9 +19,9 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="*" element={<Login />} />
+          {/* <Route path="*" element={<Login />} /> */}
           <Route path="/products" element={<Products />} />
           <Route path="/products/add" element={<AddProduct />} />
           <Route path="/products/edit/:id" element={<EditProduct />} />

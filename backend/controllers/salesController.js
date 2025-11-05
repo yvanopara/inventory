@@ -156,7 +156,7 @@ const computeSummary = (sales) => {
   return { totalQuantity, totalRevenue, totalProfit, totalCost };
 };
 
-export const getDailySummary = async (req, res) => {
+export const getDailySummary = async (req, res) => { 
   try {
     const start = new Date(); 
     start.setHours(0, 0, 0, 0);
@@ -367,6 +367,7 @@ export const getMonthlySummary = async (req, res) => {
 
 // --- Réserver une commande ---
 export const reserveSale = async (req, res) => {
+  
   try {
     const { productId, variantSize, quantity, discount = 0, customerPhone, comment, deliveryDate } = req.body;
 
@@ -440,11 +441,13 @@ export const deliverSale = async (req, res) => {
 
     const sale = await saleModel.findById(saleId);
     if (!sale) return res.status(404).json({ message: "Commande introuvable" });
-    if (sale.status !== "reserved") return res.status(400).json({ message: "Cette commande n'est pas en attente de livraison" });
+    if (sale.status !== "reserved") 
+      return res.status(400).json({ message: "Cette commande n'est pas en attente de livraison" });
 
     const product = await productModel.findById(sale.productId);
     if (!product) return res.status(404).json({ message: "Produit introuvable" });
 
+    // 🔹 Vérification du stock selon les variantes
     if (product.hasVariants && sale.variantSize) {
       const variant = product.sizes.find(v => v.size === sale.variantSize);
       if (!variant || variant.stock < sale.quantity) {
@@ -462,24 +465,63 @@ export const deliverSale = async (req, res) => {
 
     await product.save();
 
-    sale.status = "delivered";
+    // ✅ On change le statut à "active" et on met la date d'aujourd'hui
+    sale.status = "active";
+    sale.date = new Date(); // Comptera dans le daily summary
     sale.lastUpdated = new Date();
     await sale.save();
 
+    // 🔹 Enregistrer le mouvement de stock
     await StockMovement.create({
       productId: product._id,
       productName: product.name,
       variantSize: sale.variantSize || null,
       type: "delivery",
       quantity: sale.quantity,
-      note: "Commande livrée"
+      note: "Commande livrée et activée"
     });
 
-    res.status(200).json({ message: "Commande livrée avec succès", sale });
+    res.status(200).json({ message: "Commande livrée et activée avec succès", sale });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
 
+
+
+export const getAllSales = async (req, res) => {
+  try {
+    const sales = await saleModel.find();
+    res.status(200).json(sales);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+
+
+export const getReservedSales = async (req, res) => {
+  try {
+    // 🔹 On récupère toutes les ventes ayant le statut "reserved"
+    const reservedSales = await saleModel
+      .find({ status: "reserved" })
+      .populate("productId", "name") // Optionnel : pour afficher le nom du produit lié
+      .sort({ reservedAt: -1 }); // Tri décroissant (les plus récentes d’abord)
+
+    if (!reservedSales.length) {
+      return res.status(404).json({ message: "Aucune commande réservée trouvée" });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: reservedSales.length,
+      reservedSales,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Erreur serveur", error: err.message });
+  }
+};
 
