@@ -35,7 +35,7 @@ function App() {
           <Route path="/monthly-summary" element={<MonthlySummary />} />
 
           <Route path="/weekly-graph-summary" element={<WeeklySalesChart />} />
-          <Route path="/montly-graph-summary" element={<MonthlySalesChart />} /> 
+          <Route path="/monthly-graph-summary" element={<MonthlySalesChart />} /> 
           
           <Route path="/stock-movement" element={<StockMovements/>} />
            
