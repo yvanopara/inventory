@@ -25,14 +25,14 @@ ChartJS.register(
   Filler // ✅ Enregistrement du plugin
 );
 
-const MonthlySalesChart = () => {
+const MonthlySalesChart = () => { 
   const [chartData, setChartData] = useState(null);
 
   useEffect(() => {
     const fetchMonthlySummary = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/sales/summary/monthly"
+          "https://inventory2-uexd.onrender.com/api/sales/summary/monthly"
         );
         const data = res.data;
 
