@@ -13,6 +13,7 @@ import WeeklySummary from "./pages/saleHistory/WeeklySummary/WeeklySummary";
 import MonthlySummary from "./pages/saleHistory/MonthlySummary/MonthlySummary";
 import WeeklySalesChart from "./pages/saleGraphs/WeeklySalesChart/WeeklySalesChart";
 import MonthlySalesChart from "./pages/saleGraphs/MonthlySalesChart/MonthlySalesChart";
+import StockMovements from "./pages/stockMovement/StockMovements";
 
 function App() {
   return (
@@ -35,7 +36,8 @@ function App() {
 
           <Route path="/weekly-graph-summary" element={<WeeklySalesChart />} />
           <Route path="/montly-graph-summary" element={<MonthlySalesChart />} /> 
-
+          
+          <Route path="/stock-movement" element={<StockMovements/>} />
            
 
           

@@ -16,9 +16,9 @@ import "react-toastify/dist/ReactToastify.css";
 import ReserveSales from "./pages/ReserveSale/ReserveSale";
 
 
- // export const backendUrl = "http://localhost:5000";
+//   export const backendUrl = "http://localhost:5000";
 
-  export const backendUrl = "https://inventory2-uexd.onrender.com";
+ export const backendUrl = "https://inventory2-uexd.onrender.com";
 
 
 
