@@ -9,7 +9,9 @@ import {
   getDailySummary, 
   getMonthlySummary, 
   getReservedSales, 
-  getWeeklySummary,   // ✅ on importe la nouvelle fonction
+  getSalesSummaryDashboard, 
+  getTopAndLowSellingProducts, 
+  getWeeklySummary,   getYearlySummary,   // ✅ on importe la nouvelle fonction
   reserveSale
 } from "../controllers/salesController.js";
 import upload from "../middleweres/multer.js";
@@ -26,7 +28,11 @@ router.get("/summary/daily", getDailySummary);
 // ➝ Résumé des ventes de la semaine
 router.get("/summary/weekly", getWeeklySummary);
 
-router.get("/summary/monthly", getMonthlySummary);
+router.get("/summary/monthly", getMonthlySummary); 
+
+router.get("/yearly-summary", getYearlySummary);
+router.get("/dashboard-summary", getSalesSummaryDashboard);
+
 
 router.patch("/cancel/:saleId", cancelSale);
 
@@ -38,5 +44,6 @@ router.patch("/deliver/:saleId",userAuth, deliverSale);
 
  router.get("/get-all", getAllSales); 
  router.get("/get-reserve", getReservedSales); 
+ router.get("/top-and-low-products", getTopAndLowSellingProducts);
 
 export default router;

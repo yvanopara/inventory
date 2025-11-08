@@ -1,0 +1,49 @@
+.annual-summary-container {
+  padding: 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.08);
+}
+
+.annual-summary-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.chart-container {
+  margin: 30px 0;
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+
+.summary-totals {
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.summary-totals h3 {
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.summary-totals ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.summary-totals li {
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.error {
+  color: red;
+  text-align: center;
+  font-weight: bold;
+}

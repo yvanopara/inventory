@@ -1,0 +1,42 @@
+.charts-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+}
+
+.dashboard-title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 28px;
+  color: #333;
+}
+
+/* Ligne scrollable */
+.charts-grid {
+  display: flex;
+  overflow-x: auto; /* scroll horizontal */
+  gap: 20px;
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch; /* scroll fluide sur mobile */
+}
+
+.chart-card {
+  flex: 0 0 30%; /* 3 charts visibles, le 4ème se scroll */
+  min-width: 250px; /* largeur minimale pour chaque chart */
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-5px);
+}
+
+.chart-title {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 20px;
+  color: #555;
+}

@@ -10,57 +10,77 @@ cloudinary.config({
   api_secret: "TON_API_SECRET",
 });
 
-// --- Fonction d'alerte stock faible ---
+// --- Fonction d'alerte stock faible --- 
+// --- Fonction utilitaire pour détecter les stocks faibles ---
 export const checkLowStock = (product) => {
   const alerts = [];
+  const threshold = product.minStock || 5; // seuil d’alerte dynamique
 
-  if (product.hasVariants) {
-    product.sizes.forEach(v => {
-      if (v.stock <= v.minStock) {
-        alerts.push(`Variante ${v.size} du produit "${product.name}" est faible (${v.stock} restant)`);
+  // Cas 1️⃣ : produit simple (sans variantes)
+  if (!product.hasVariants || !product.sizes || product.sizes.length === 0) {
+    if (product.stock <= threshold) {
+      alerts.push({
+        productName: product.name,
+        quantity: product.stock, // 🔥 ici on renvoie bien le stock actuel
+      });
+    }
+  }
+
+  // Cas 2️⃣ : produit avec variantes
+  else {
+    product.sizes.forEach((variant) => {
+      if (variant.stock <= threshold) {
+        alerts.push({
+          productName: `${product.name} - ${variant.size}`,
+          quantity: variant.stock,
+        });
       }
     });
-  } else {
-    if (product.stock <= product.minStock) {
-      alerts.push(`Produit "${product.name}" est faible (${product.stock} restant)`);
-    }
   }
 
   return alerts;
 };
 
+
 // --- Fonction pour récupérer toutes les alertes de stock faible ---
 export const getLowStockAlerts = async (req, res) => {
   try {
-    // 1️⃣ On récupère tous les produits dans la base de données
+    // 1️⃣ Récupérer tous les produits
     const products = await Product.find();
 
-    // 2️⃣ On crée un tableau vide pour stocker les alertes
-    let alerts = [];
+    // 2️⃣ Tableau pour stocker les alertes
+    const alerts = [];
 
-    // 3️⃣ Pour chaque produit trouvé dans la base
-    for (let product of products) {
-     
+    // 3️⃣ Parcourir chaque produit
+    for (const product of products) {
       const productAlerts = checkLowStock(product);
 
-      // On ajoute ces alertes dans le tableau général "alerts"
-      alerts = alerts.concat(productAlerts);
+      if (Array.isArray(productAlerts)) {
+        productAlerts.forEach((a) => {
+          alerts.push({
+            productName: a.productName || product.name || "Produit inconnu",
+            quantity: a.quantity || product.quantity || 0,
+            image: product.image || null // ← on ajoute l'image ici
+          });
+        });
+      }
     }
 
+    // 4️⃣ Retourner les alertes
     res.status(200).json({
       message: "Alertes de stock faible récupérées avec succès",
-      alerts: alerts,
+      alerts,
     });
 
   } catch (error) {
-    // 5️⃣ Si une erreur se produit, on la capture ici
-    // et on renvoie une réponse d’erreur
     res.status(500).json({
       message: "Erreur lors de la récupération des alertes de stock faible",
       error: error.message,
     });
   }
 };
+
+
 
 // --- Historique des mouvements de stock ---
 export const getStockHistory = async (req, res) => {

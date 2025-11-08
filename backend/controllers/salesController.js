@@ -37,13 +37,16 @@ export const addSale = async (req, res) => {
       product.lastSoldAt = new Date();
     }
 
-    const finalPrice = (unitPrice - discount) * quantity;
-    const profit = (unitPrice - costPrice - discount) * quantity;
-    const totalCost = costPrice * quantity;
+    // --- Calculs financiers cohérents ---
+    // 💡 Discount ici est une remise TOTALE, pas par unité.
+    const totalRevenue = unitPrice * quantity;  // Revenu brut avant remise
+    const totalCost = costPrice * quantity;     // Coût total
+    const finalPrice = totalRevenue - discount; // Revenu net après remise
+    const profit = finalPrice - totalCost;      // Bénéfice net
 
     await product.save();
 
-    // Upload preuve si présente
+    // --- Upload de la preuve (facultatif) ---
     let proofImageUrl = null;
     if (req.file) {
       const uploadResult = await cloudinary.uploader.upload(req.file.path, {
@@ -54,43 +57,46 @@ export const addSale = async (req, res) => {
       fs.unlinkSync(req.file.path);
     }
 
+    // --- Création de la vente ---
     const sale = new saleModel({
       productId: product._id,
       variantSize: variantSize || null,
       quantity,
       sellingPrice: unitPrice,
-      productName: product.name,
-      discount,
-      finalPrice,
-      profit,
       costPrice,
+      discount,
       totalCost,
+      profit,
+      productName: product.name,
       comment: comment || null,
       customerPhone: customerPhone || null,
-      status: "active"
+      finalPrice,
+      revenue: finalPrice, // ✅ ajouté pour correspondre au résumé
+      proofImage: proofImageUrl,
+      status: "active",
     });
 
     await sale.save();
 
-    // Historique stock
+    // --- Historique du mouvement de stock ---
     await StockMovement.create({
       productId: product._id,
       productName: product.name,
       variantSize: variantSize || null,
       type: "sale",
       quantity,
-      note: "Vente enregistrée"
+      note: "Vente enregistrée",
     });
 
     const alerts = checkLowStock(product);
 
-    res.status(201).json({ message: "Vente enregistrée", sale, alerts });
-
+    res.status(201).json({ message: "✅ Vente enregistrée avec succès", sale, alerts });
   } catch (err) {
-    console.error(err);
+    console.error("Erreur dans addSale:", err);
     res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
+
 
 // --- Annuler une vente ---
 export const cancelSale = async (req, res) => {
@@ -271,6 +277,7 @@ const computeSummary = (sales) => {
   return { totalQuantity, totalRevenue, totalProfit, totalCost };
 };
 
+
 // --- Daily Summary ---
 export const getDailySummary = async (req, res) => { 
   try {
@@ -284,6 +291,7 @@ export const getDailySummary = async (req, res) => {
       .populate("productId", "name image")
       .sort({ createdAt: -1 });
 
+    // On garde les champs originaux pour les calculs
     const dailySales = sales.map((sale) => ({
       productPhoto: sale.productId?.image || "",
       productName: sale.productName || sale.productId?.name,
@@ -293,10 +301,22 @@ export const getDailySummary = async (req, res) => {
       customerPhone: sale.customerPhone || "",
       date: sale.createdAt,
       discount: sale.discount || 0,
-      revenue: sale.finalPrice || 0,
+      revenue: sale.finalPrice || 0, // ← utiliser revenue
       profit: sale.profit || 0,
-      cost: sale.totalCost || 0,
+      cost: sale.totalCost || 0,     // ← utiliser cost
     }));
+
+    // Correction : computeSummary prend les bons champs
+    const computeSummary = (sales) => {
+      let totalQuantity = 0, totalRevenue = 0, totalProfit = 0, totalCost = 0;
+      sales.forEach(sale => {
+        totalQuantity += sale.quantity || 0;
+        totalRevenue += sale.revenue || 0;  // ← revenue
+        totalProfit += sale.profit || 0;
+        totalCost += sale.cost || 0;        // ← cost
+      });
+      return { totalQuantity, totalRevenue, totalProfit, totalCost };
+    };
 
     const summary = computeSummary(dailySales);
 
@@ -310,6 +330,7 @@ export const getDailySummary = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
+
 
 // --- Weekly Summary ---
 export const getWeeklySummary = async (req, res) => {
@@ -452,6 +473,70 @@ export const getMonthlySummary = async (req, res) => {
   }
 };
 
+
+// --- Yearly Summary ---
+export const getYearlySummary = async (req, res) => {
+  try {
+    const now = new Date();
+    const year = req.query.year ? parseInt(req.query.year) : now.getFullYear(); // année courante par défaut
+
+    const start = new Date(year, 0, 1); // 1er janvier
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(year, 11, 31); // 31 décembre
+    end.setHours(23, 59, 59, 999);
+
+    // On récupère toutes les ventes actives de l’année
+    const sales = await saleModel.find({
+      createdAt: { $gte: start, $lte: end },
+      status: "active"
+    }).populate("productId", "name image");
+
+    if (!sales.length) {
+      return res.status(200).json({
+        message: `Aucune vente enregistrée pour l'année ${year}.`,
+        year,
+        monthlySummaries: [],
+        totalSummary: { totalQuantity: 0, totalRevenue: 0, totalProfit: 0, totalCost: 0 },
+      });
+    }
+
+    // Regrouper les ventes par mois
+    const monthlyData = {};
+    sales.forEach(sale => {
+      const monthKey = new Date(sale.createdAt).getMonth(); // 0 = janvier, 11 = décembre
+      if (!monthlyData[monthKey]) monthlyData[monthKey] = [];
+      monthlyData[monthKey].push(sale);
+    });
+
+    // Construire le résumé mensuel
+    const monthlySummaries = [];
+    for (let m = 0; m < 12; m++) {
+      const monthSales = monthlyData[m] || [];
+      const summary = computeSummary(monthSales);
+      monthlySummaries.push({
+        month: new Date(year, m).toLocaleString("fr-FR", { month: "long" }),
+        summary,
+        numberOfSales: monthSales.length,
+      });
+    }
+
+    // Résumé global de l’année
+    const totalSummary = computeSummary(sales);
+
+    res.status(200).json({
+      year,
+      monthlySummaries,
+      totalSummary,
+    });
+  } catch (err) {
+    console.error("Erreur dans getYearlySummary :", err);
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+
+
+
 // --- Obtenir toutes les ventes ---
 export const getAllSales = async (req, res) => {
   try {
@@ -483,5 +568,209 @@ export const getReservedSales = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Erreur serveur", error: err.message });
+  }
+};
+
+
+
+// --- Résumé global pour toutes les périodes (totaux seulement) ---
+export const getSalesSummaryDashboard = async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Fonction utilitaire pour calculer résumé
+    const computeSummary = (sales) => {
+      let totalQuantity = 0, totalRevenue = 0, totalProfit = 0, totalCost = 0;
+      sales.forEach(sale => {
+        totalQuantity += sale.quantity || 0;
+        totalRevenue += sale.finalPrice || 0;
+        totalProfit += sale.profit || 0;
+        totalCost += sale.totalCost || 0;
+      });
+      return { totalQuantity, totalRevenue, totalProfit, totalCost };
+    };
+
+    // --- Définition des périodes ---
+    const periods = {
+      today: { start: new Date(), end: new Date() },
+      yesterday: { start: new Date(), end: new Date() },
+      thisWeek: { start: new Date(), end: new Date() },
+      lastWeek: { start: new Date(), end: new Date() },
+      thisMonth: { start: new Date(), end: new Date() },
+      lastMonth: { start: new Date(), end: new Date() },
+      thisYear: { start: new Date(), end: new Date() },
+      lastYear: { start: new Date(), end: new Date() },
+    };
+
+    // --- Jour ---
+    periods.today.start.setHours(0, 0, 0, 0);
+    periods.today.end.setHours(23, 59, 59, 999);
+
+    periods.yesterday.start.setDate(now.getDate() - 1);
+    periods.yesterday.start.setHours(0, 0, 0, 0);
+    periods.yesterday.end.setDate(now.getDate() - 1);
+    periods.yesterday.end.setHours(23, 59, 59, 999);
+
+    // --- Semaine en cours ---
+    periods.thisWeek.start.setDate(now.getDate() - now.getDay() + 1); // lundi
+    periods.thisWeek.start.setHours(0, 0, 0, 0);
+    periods.thisWeek.end.setDate(periods.thisWeek.start.getDate() + 6); // dimanche
+    periods.thisWeek.end.setHours(23, 59, 59, 999);
+
+    // --- Semaine dernière ---
+    periods.lastWeek.start.setDate(periods.thisWeek.start.getDate() - 7);
+    periods.lastWeek.start.setHours(0, 0, 0, 0);
+    periods.lastWeek.end.setDate(periods.lastWeek.start.getDate() + 6);
+    periods.lastWeek.end.setHours(23, 59, 59, 999);
+
+    // --- Mois en cours ---
+    periods.thisMonth.start = new Date(now.getFullYear(), now.getMonth(), 1);
+    periods.thisMonth.start.setHours(0, 0, 0, 0);
+    periods.thisMonth.end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    periods.thisMonth.end.setHours(23, 59, 59, 999);
+
+    // --- Mois passé ---
+    periods.lastMonth.start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    periods.lastMonth.start.setHours(0, 0, 0, 0);
+    periods.lastMonth.end = new Date(now.getFullYear(), now.getMonth(), 0);
+    periods.lastMonth.end.setHours(23, 59, 59, 999);
+
+    // --- Année en cours ---
+    periods.thisYear.start = new Date(now.getFullYear(), 0, 1);
+    periods.thisYear.start.setHours(0, 0, 0, 0);
+    periods.thisYear.end = new Date(now.getFullYear(), 11, 31);
+    periods.thisYear.end.setHours(23, 59, 59, 999);
+
+    // --- Année passée ---
+    const lastYear = now.getFullYear() - 1;
+    periods.lastYear.start = new Date(lastYear, 0, 1);
+    periods.lastYear.start.setHours(0, 0, 0, 0);
+    periods.lastYear.end = new Date(lastYear, 11, 31);
+    periods.lastYear.end.setHours(23, 59, 59, 999);
+
+    // --- Calcul des totaux pour chaque période ---
+    const results = {};
+    for (const [key, period] of Object.entries(periods)) {
+      const sales = await saleModel.find({
+        createdAt: { $gte: period.start, $lte: period.end },
+        status: "active",
+      });
+      results[key] = computeSummary(sales);
+    }
+
+    res.status(200).json({
+      date: now.toLocaleDateString("fr-FR"),
+      summary: results,
+    });
+
+  } catch (err) {
+    console.error("Erreur dans getSalesSummary :", err);
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+
+
+// --- Fonction utilitaire pour top/low produits ---
+const getTopOrLowProducts = async (startDate, endDate, order) => {
+  return await saleModel.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startDate, $lte: endDate },
+        status: "active",
+      },
+    },
+    {
+      $group: {
+        _id: "$productId",
+        totalQuantity: { $sum: "$quantity" },
+      },
+    },
+    { $sort: { totalQuantity: order } }, // -1 top, 1 low
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: "products",
+        localField: "_id",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    { $unwind: "$product" },
+    {
+      $project: {
+        _id: 0,
+        productId: "$product._id",
+        name: "$product.name",
+        image: "$product.image",
+        totalQuantity: 1,
+      },
+    },
+  ]);
+};
+
+// --- Contrôleur principal ---
+export const getTopAndLowSellingProducts = async (req, res) => {
+  try {
+    const now = new Date();
+
+    // --- Semaines ---
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay() + 1); // lundi
+    startOfWeek.setHours(0, 0, 0, 0);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const startOfLastWeek = new Date(startOfWeek);
+    startOfLastWeek.setDate(startOfWeek.getDate() - 7);
+    const endOfLastWeek = new Date(startOfLastWeek);
+    endOfLastWeek.setDate(startOfLastWeek.getDate() + 6);
+    endOfLastWeek.setHours(23, 59, 59, 999);
+
+    // --- Mois ---
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999);
+
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    endOfLastMonth.setHours(23, 59, 59, 999);
+
+    // --- Appels parallèles ---
+    const [
+      weeklyTop,
+      weeklyLow,
+      lastWeekTop,
+      lastWeekLow,
+      monthlyTop,
+      monthlyLow,
+      lastMonthTop,
+      lastMonthLow
+    ] = await Promise.all([
+      getTopOrLowProducts(startOfWeek, endOfWeek, -1),
+      getTopOrLowProducts(startOfWeek, endOfWeek, 1),
+      getTopOrLowProducts(startOfLastWeek, endOfLastWeek, -1),
+      getTopOrLowProducts(startOfLastWeek, endOfLastWeek, 1),
+      getTopOrLowProducts(startOfMonth, endOfMonth, -1),
+      getTopOrLowProducts(startOfMonth, endOfMonth, 1),
+      getTopOrLowProducts(startOfLastMonth, endOfLastMonth, -1),
+      getTopOrLowProducts(startOfLastMonth, endOfLastMonth, 1),
+    ]);
+
+    res.json({
+      weeklyTop,
+      weeklyLow,
+      lastWeekTop,
+      lastWeekLow,
+      monthlyTop,
+      monthlyLow,
+      lastMonthTop,
+      lastMonthLow
+    });
+
+  } catch (error) {
+    console.error("Erreur top/low ventes avancé:", error);
+    res.status(500).json({ message: "Erreur lors du calcul des ventes" });
   }
 };

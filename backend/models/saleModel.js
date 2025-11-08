@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const saleSchema = new mongoose.Schema(
+const saleSchema = new mongoose.Schema( 
   {
     productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
     variantSize: { type: String },
