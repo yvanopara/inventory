@@ -16,10 +16,12 @@ import MonthlySalesChart from "./pages/saleGraphs/MonthlySalesChart/MonthlySales
 import StockMovements from "./pages/stockMovement/StockMovements";
 import YearlySummary from "./pages/saleHistory/YearlySummary/YearlySummary";
 import YearlySummaryChart from "./pages/saleGraphs/YearlySummary/YearlySummary";
+import SidebarMenu from "./components/SidebarMenu/SidebarMenu";
 
 function App() {
   return (
     <AuthProvider>
+      <SidebarMenu/>
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />

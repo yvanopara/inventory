@@ -1,0 +1,195 @@
+/* === Bouton ☰ === */
+.menu-toggle {
+  position: fixed;
+  top: 20px;
+  left: 25px;
+  z-index: 2000;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  font-size: 1.8rem;
+  padding: 10px 14px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.menu-toggle:hover {
+  transform: scale(1.08);
+  background: linear-gradient(135deg, #6b7eff, #8e54e9);
+}
+
+/* === Container Sidebar (corrige l'affichage résiduel) === */
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 1500;
+  transition: width 0.4s ease;
+}
+
+.sidebar-container.visible {
+  width: 330px;
+}
+
+/* === Sidebar === */
+.sidebar {
+  width: 280px;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  padding: 25px;
+  transition: transform 0.45s cubic-bezier(0.77, 0, 0.175, 1);
+  box-shadow: 10px 0 25px rgba(0, 0, 0, 0.2);
+  border-radius: 0 20px 20px 0;
+  transform: translateX(-100%);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* === Header === */
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+}
+
+.sidebar-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(45deg, #ffffff, #c9b6ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.close-icon {
+  font-size: 1.6rem;
+  color: #ffb6b6;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.close-icon:hover {
+  transform: rotate(90deg);
+}
+
+/* === Menu principal === */
+.menu-list {
+  list-style: none;
+  padding: 0;
+}
+
+.menu-item {
+  padding: 12px 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+}
+
+/* === Spécial Dashboard === */
+.dashboard-item {
+  background: rgba(255, 255, 255, 0.15);
+  border-left: 4px solid #ffffff;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* === Icones === */
+.menu-icon {
+  font-size: 1.2rem;
+  margin-right: 10px;
+  color: #fff;
+}
+
+.menu-item span {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* === Chevron === */
+.chevron {
+  transition: transform 0.3s ease;
+}
+
+.chevron.rotate {
+  transform: rotate(180deg);
+}
+
+/* === Sous-menu === */
+.submenu {
+  list-style: none;
+  margin-top: 10px;
+  padding-left: 25px;
+  animation: slideDown 0.4s ease;
+}
+
+.submenu li {
+  padding: 8px 0;
+  font-size: 0.95rem;
+  color: #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.submenu li:hover {
+  color: #ffffff;
+  transform: translateX(6px);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Déconnexion === */
+.logout {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.logout:hover {
+  background: rgba(255, 107, 107, 0.2);
+  transform: translateX(6px);
+}
+
+/* === Header des éléments avec sous-menu === */
+.menu-item-header {
+  display: flex;
+  align-items: center;       /* ✅ Aligne verticalement texte + icône + flèche */
+  justify-content: space-between;
+  width: 100%;
+}
+
+.menu-item-header div {
+  display: flex;
+  align-items: center;       /* ✅ Garde icône + texte bien centrés */
+  gap: 10px;                 /* Petit espace entre icône et texte */
+}
+
+.chevron {
+  margin-left: 10px;
+  font-size: 0.9rem;
+  align-self: center;        /* ✅ Garde la flèche centrée verticalement */
+  transition: transform 0.3s ease;
+}

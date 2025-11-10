@@ -31,18 +31,34 @@ const TopLowProductsCharts = () => {
     fetchData();
   }, []);
 
-  // Palette de couleurs différentes pour chaque produit
+  // Palette de couleurs étendue
   const colors = [
     "#82ca9d",
     "#8884d8",
     "#ffc658",
     "#ff7f50",
     "#a569bd",
+    "#3498db",
+    "#e74c3c",
+    "#2ecc71",
+    "#f39c12",
+    "#9b59b6",
   ];
 
   const renderDoughnut = (chartData, title) => {
-    const labels = chartData.map(item => item.name);
-    const quantities = chartData.map(item => item.totalQuantity);
+    if (!chartData || chartData.length === 0) {
+      return (
+        <div className="chart-card">
+          <h3 className="chart-title">{title}</h3>
+          <div className="chart-empty">
+            <p>Aucune donnée disponible</p>
+          </div>
+        </div>
+      );
+    }
+
+    const labels = chartData.map(item => item.name || "Produit sans nom");
+    const quantities = chartData.map(item => item.totalQuantity || 0);
     const backgroundColors = chartData.map((_, idx) => colors[idx % colors.length]);
 
     const doughnutData = {
@@ -53,6 +69,7 @@ const TopLowProductsCharts = () => {
           backgroundColor: backgroundColors,
           borderColor: "#fff",
           borderWidth: 2,
+          hoverOffset: 8,
         },
       ],
     };
@@ -62,6 +79,13 @@ const TopLowProductsCharts = () => {
         legend: {
           display: true,
           position: "right",
+          labels: {
+            usePointStyle: true,
+            padding: 15,
+            font: {
+              size: 11
+            }
+          },
         },
         tooltip: {
           callbacks: {
@@ -73,12 +97,13 @@ const TopLowProductsCharts = () => {
         },
       },
       maintainAspectRatio: false,
+      cutout: "60%",
     };
 
     return (
       <div className="chart-card">
         <h3 className="chart-title">{title}</h3>
-        <div style={{ height: 300 }}>
+        <div className="chart-wrapper">
           <Doughnut data={doughnutData} options={options} />
         </div>
       </div>
@@ -89,21 +114,27 @@ const TopLowProductsCharts = () => {
     <div className="charts-container">
       <h2 className="dashboard-title">Produits les plus et moins vendus</h2>
 
-      {/* Ligne 1 : Top 5 (vert) */}
-      <div className="charts-grid">
-        {renderDoughnut(data.weeklyTop, "Top 5 - Semaine en cours")}
-        {renderDoughnut(data.lastWeekTop, "Top 5 - Semaine dernière")}
-        {renderDoughnut(data.monthlyTop, "Top 5 - Mois en cours")}
-        {renderDoughnut(data.lastMonthTop, "Top 5 - Mois dernier")}
-      </div>
+      {/* Section Top 5 */}
+      <section className="charts-section">
+        <h3 className="section-title">Top 5 des produits</h3>
+        <div className="charts-grid">
+          {renderDoughnut(data.weeklyTop, "Semaine en cours")}
+          {renderDoughnut(data.lastWeekTop, "Semaine dernière")}
+          {renderDoughnut(data.monthlyTop, "Mois en cours")}
+          {renderDoughnut(data.lastMonthTop, "Mois dernier")}
+        </div>
+      </section>
 
-      {/* Ligne 2 : Low 5 (rouge) */}
-      <div className="charts-grid">
-        {renderDoughnut(data.weeklyLow, "Low 5 - Semaine en cours")}
-        {renderDoughnut(data.lastWeekLow, "Low 5 - Semaine dernière")}
-        {renderDoughnut(data.monthlyLow, "Low 5 - Mois en cours")}
-        {renderDoughnut(data.lastMonthLow, "Low 5 - Mois dernier")}
-      </div>
+      {/* Section Low 5 */}
+      <section className="charts-section">
+        <h3 className="section-title">5 produits les moins vendus</h3>
+        <div className="charts-grid">
+          {renderDoughnut(data.weeklyLow, "Semaine en cours")}
+          {renderDoughnut(data.lastWeekLow, "Semaine dernière")}
+          {renderDoughnut(data.monthlyLow, "Mois en cours")}
+          {renderDoughnut(data.lastMonthLow, "Mois dernier")}
+        </div>
+      </section>
     </div>
   );
 };
