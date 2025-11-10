@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./SidebarMenu.css";
 import {
   FaBars,
@@ -18,11 +19,13 @@ const SidebarMenu = () => {
   const [openSales, setOpenSales] = useState(false);
   const [openGraphs, setOpenGraphs] = useState(false);
 
+  const navigate = useNavigate(); // 🔹 Pour la navigation
+
   // 🔐 Déconnexion
   const handleLogout = () => {
     localStorage.removeItem("token");
     sessionStorage.removeItem("token");
-    window.location.href = "/login"; // redirige vers la page de login
+    navigate("/login"); // redirection via React Router
   };
 
   return (
@@ -44,7 +47,10 @@ const SidebarMenu = () => {
 
           <ul className="menu-list">
             {/* Accueil */}
-            <li className="menu-item dashboard-item">
+            <li
+              className="menu-item dashboard-item"
+              onClick={() => navigate("/")}
+            >
               <FaChartLine className="menu-icon" />
               <span>Accueil</span>
             </li>
@@ -65,10 +71,18 @@ const SidebarMenu = () => {
               </div>
               {openSales && (
                 <ul className="submenu">
-                  <li>Ventes journalières</li>
-                  <li>Ventes hebdomadaires</li>
-                  <li>Ventes mensuelles</li>
-                  <li>Ventes annuelles</li>
+                  <li onClick={() => navigate("/daily-summary")}>
+                    Ventes journalières
+                  </li>
+                  <li onClick={() => navigate("/weekly-summary")}>
+                    Ventes hebdomadaires
+                  </li>
+                  <li onClick={() => navigate("/monthly-summary")}>
+                    Ventes mensuelles
+                  </li>
+                  <li onClick={() => navigate("/yearly-summary")}>
+                    Ventes annuelles
+                  </li>
                 </ul>
               )}
             </li>
@@ -89,27 +103,39 @@ const SidebarMenu = () => {
               </div>
               {openGraphs && (
                 <ul className="submenu">
-                  <li>Graphique de la semaine</li>
-                  <li>Graphique du mois</li>
-                  <li>Graphique de l’année</li>
+                  <li onClick={() => navigate("/graph/week")}>
+                    Graphique de la semaine
+                  </li>
+                  <li onClick={() => navigate("/graph/month")}>
+                    Graphique du mois
+                  </li>
+                  <li onClick={() => navigate("graph/anual")}>
+                    Graphique de l’année
+                  </li>
                 </ul>
               )}
             </li>
 
             {/* Stock faible */}
-            <li className="menu-item">
+            <li className="menu-item" onClick={() => navigate("/alerts/low-stock")}>
               <FaBox className="menu-icon" />
               <span>Stock faible</span>
             </li>
 
+            {/* Stock Movements */}
+            <li className="menu-item" onClick={() => navigate("/stock-movement")}>
+              <FaBox className="menu-icon" />
+              <span>Variation de Stock</span>
+            </li>
+
             {/* Finances */}
-            <li className="menu-item">
+            <li className="menu-item" onClick={() => navigate("/finances")}>
               <FaMoneyBillWave className="menu-icon" />
               <span>Finances</span>
             </li>
 
             {/* Paramètres */}
-            <li className="menu-item">
+            <li className="menu-item" onClick={() => navigate("/settings")}>
               <FaCog className="menu-icon" />
               <span>Paramètres</span>
             </li>

@@ -20,9 +20,11 @@ import SidebarMenu from "./components/SidebarMenu/SidebarMenu";
 
 function App() {
   return (
+    <>
     <AuthProvider>
-      <SidebarMenu/>
-      <Router>
+      
+      
+        <SidebarMenu/>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Dashboard />} />
@@ -39,9 +41,9 @@ function App() {
           <Route path="/monthly-summary" element={<MonthlySummary />} />
           <Route path="/yearly-summary" element={<YearlySummary />} />
 
-          <Route path="/weekly-graph-summary" element={<WeeklySalesChart />} />
-          <Route path="/monthly-graph-summary" element={<MonthlySalesChart />} /> 
-          <Route path="/yearly-graph-summary" element={<YearlySummaryChart />} /> 
+          <Route path="/graph/week" element={<WeeklySalesChart />} />
+          <Route path="/graph/month" element={<MonthlySalesChart />} /> 
+          <Route path="/graph/anual" element={<YearlySummaryChart />} /> 
           
           <Route path="/stock-movement" element={<StockMovements/>} />
            
@@ -49,8 +51,9 @@ function App() {
           
 
         </Routes>
-      </Router>
+      
     </AuthProvider>
+    </>
   );
 }
 
