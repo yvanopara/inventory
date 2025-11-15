@@ -304,6 +304,7 @@ export const getDailySummary = async (req, res) => {
       revenue: sale.finalPrice || 0, // ← utiliser revenue
       profit: sale.profit || 0,
       cost: sale.totalCost || 0,     // ← utiliser cost
+      customerPhone: sale.customerPhone || "",
     }));
 
     // Correction : computeSummary prend les bons champs
@@ -370,6 +371,7 @@ export const getWeeklySummary = async (req, res) => {
         revenue: sale.finalPrice || 0,
         profit: sale.profit || 0,
         cost: sale.totalCost || 0,
+        customerPhone: sale.customerPhone || "",
       });
     });
 
@@ -426,6 +428,7 @@ export const getMonthlySummary = async (req, res) => {
         cost: sale.totalCost || 0,
         status: sale.status,
         date: sale.createdAt,
+        customerPhone: sale.customerPhone || "",
       });
     });
 
