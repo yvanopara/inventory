@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // ✅ Définir l'adresse du backend ici 
-   // export const backendUrl = "http://localhost:5000";
+ // export const backendUrl = "http://localhost:5000";
 
   export const backendUrl = "https://inventory2-uexd.onrender.com";
 
