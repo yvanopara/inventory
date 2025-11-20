@@ -10,6 +10,14 @@ export const addSale = async (req, res) => {
   try {
     const { productId, variantSize, quantity, discount = 0, customerPhone, comment } = req.body;
 
+    // 🔥 Correction majeure : forcer les nombres
+    const qty = Number(quantity);
+    const disc = Number(discount);
+
+    if (isNaN(qty) || isNaN(disc)) {
+      return res.status(400).json({ message: "Les valeurs doivent être des nombres." });
+    }
+
     const product = await productModel.findById(productId);
     if (!product) return res.status(404).json({ message: "Produit introuvable" });
 
@@ -18,35 +26,34 @@ export const addSale = async (req, res) => {
     if (product.hasVariants) {
       const variant = product.sizes.find(v => v.size === variantSize);
       if (!variant) return res.status(404).json({ message: "Variante introuvable" });
-      if (variant.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
+      if (variant.stock < qty) return res.status(400).json({ message: "Stock insuffisant" });
 
-      unitPrice = variant.sellingPrice;
-      costPrice = variant.costPrice;
+      unitPrice = Number(variant.sellingPrice);
+      costPrice = Number(variant.costPrice);
 
-      variant.stock -= quantity;
-      variant.totalSold += quantity;
+      variant.stock -= qty;
+      variant.totalSold = Number(variant.totalSold) + qty;
       variant.lastSoldAt = new Date();
     } else {
-      if (product.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
+      if (product.stock < qty) return res.status(400).json({ message: "Stock insuffisant" });
 
-      unitPrice = product.sellingPrice;
-      costPrice = product.costPrice;
+      unitPrice = Number(product.sellingPrice);
+      costPrice = Number(product.costPrice);
 
-      product.stock -= quantity;
-      product.totalSold += quantity;
+      product.stock -= qty;
+      product.totalSold = Number(product.totalSold) + qty;
       product.lastSoldAt = new Date();
     }
 
-    // --- Calculs financiers cohérents ---
-    // 💡 Discount ici est une remise TOTALE, pas par unité.
-    const totalRevenue = unitPrice * quantity;  // Revenu brut avant remise
-    const totalCost = costPrice * quantity;     // Coût total
-    const finalPrice = totalRevenue - discount; // Revenu net après remise
-    const profit = finalPrice - totalCost;      // Bénéfice net
+    // --- Calculs financiers ---
+    const totalRevenue = unitPrice * qty;
+    const totalCost = costPrice * qty;
+    const finalPrice = totalRevenue - disc;
+    const profit = finalPrice - totalCost;
 
     await product.save();
 
-    // --- Upload de la preuve (facultatif) ---
+    // --- Upload de la preuve ---
     let proofImageUrl = null;
     if (req.file) {
       const uploadResult = await cloudinary.uploader.upload(req.file.path, {
@@ -61,17 +68,17 @@ export const addSale = async (req, res) => {
     const sale = new saleModel({
       productId: product._id,
       variantSize: variantSize || null,
-      quantity,
+      quantity: qty,
       sellingPrice: unitPrice,
       costPrice,
-      discount,
+      discount: disc,
       totalCost,
       profit,
       productName: product.name,
       comment: comment || null,
       customerPhone: customerPhone || null,
       finalPrice,
-      revenue: finalPrice, // ✅ ajouté pour correspondre au résumé
+      revenue: finalPrice,
       proofImage: proofImageUrl,
       status: "active",
     });
@@ -84,18 +91,19 @@ export const addSale = async (req, res) => {
       productName: product.name,
       variantSize: variantSize || null,
       type: "sale",
-      quantity,
+      quantity: qty,
       note: "Vente enregistrée",
     });
 
     const alerts = checkLowStock(product);
 
-    res.status(201).json({ message: "✅ Vente enregistrée avec succès", sale, alerts });
+    res.status(201).json({ message: "Vente enregistrée avec succès", sale, alerts });
   } catch (err) {
     console.error("Erreur dans addSale:", err);
     res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
+
 
 
 // --- Annuler une vente ---
