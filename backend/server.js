@@ -1,5 +1,6 @@
 // server.js
-
+import dotenv from 'dotenv';
+import 'dotenv/config'; 
 import express from 'express';
 import cors from 'cors';
 import { connectDB } from './config/db.js';
@@ -8,10 +9,14 @@ import salesRouter from './routes/salesRoute.js';
 import StockMovement from './models/stockMovementModel.js';
 import stockMovementRoutes from './routes/stockMovementRoutes.js';
 import userRouter from './routes/userRoute.js';
+import telegramRoute from './routes/telegramRoute.js';
+import './controllers/stateMessages.js';
+
 
 const port = 5000;
 const app = express();
 app.use(cors());
+dotenv.config();
 
 // Middleware pour lire du JSON
 app.use(express.json());
@@ -23,6 +28,8 @@ app.use("/api/products", productRouter);
 app.use("/api/sales", salesRouter);
 app.use("/api/stockMovementRoutes", stockMovementRoutes);
 app.use('/api/user', userRouter);
+// app.use('message',telegramRoute);
+app.use("/telegram", telegramRoute); //hummm
 
 
 // cors
