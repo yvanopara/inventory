@@ -160,68 +160,74 @@ export const cancelSale = async (req, res) => {
 
 // --- Réserver une commande ---
 export const reserveSale = async (req, res) => {
-  try {
-    const { productId, variantSize, quantity, discount = 0, customerPhone, comment, deliveryDate } = req.body;
+try {
+const { productId, variantSize, quantity, discount = 0, customerPhone, comment, deliveryDateTime } = req.body;
 
-    if (!deliveryDate) {
-      return res.status(400).json({ message: "La date de livraison est obligatoire" });
-    }
-    const delivery = new Date(deliveryDate);
-    const today = new Date();
-    if (delivery <= today) {
-      return res.status(400).json({ message: "La date de livraison doit être postérieure à aujourd'hui" });
-    }
 
-    const product = await productModel.findById(productId);
-    if (!product) return res.status(404).json({ message: "Produit introuvable" });
+// Vérifier que la date et l'heure de livraison sont fournies
+if (!deliveryDateTime) {
+  return res.status(400).json({ message: "La date et l'heure de livraison sont obligatoires" });
+}
 
-    let unitPrice, costPrice;
+const delivery = new Date(deliveryDateTime); // Accepte date + heure
+const now = new Date();
+if (delivery <= now) {
+  return res.status(400).json({ message: "La date et l'heure de livraison doivent être postérieures à maintenant" });
+}
 
-    if (product.hasVariants) {
-      const variant = product.sizes.find(v => v.size === variantSize);
-      if (!variant) return res.status(404).json({ message: "Variante introuvable" });
-      if (variant.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
+const product = await productModel.findById(productId);
+if (!product) return res.status(404).json({ message: "Produit introuvable" });
 
-      unitPrice = variant.sellingPrice;
-      costPrice = variant.costPrice;
-    } else {
-      if (product.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
+let unitPrice, costPrice;
 
-      unitPrice = product.sellingPrice;
-      costPrice = product.costPrice;
-    }
+if (product.hasVariants) {
+  const variant = product.sizes.find(v => v.size === variantSize);
+  if (!variant) return res.status(404).json({ message: "Variante introuvable" });
+  if (variant.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
 
-    const finalPrice = (unitPrice - discount) * quantity;
-    const profit = (unitPrice - costPrice - discount) * quantity;
-    const totalCost = costPrice * quantity;
+  unitPrice = variant.sellingPrice;
+  costPrice = variant.costPrice;
+} else {
+  if (product.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
 
-    const sale = new saleModel({
-      productId: product._id,
-      variantSize: variantSize || null,
-      quantity,
-      sellingPrice: unitPrice,
-      costPrice,
-      productName: product.name,
-      discount,
-      finalPrice,
-      profit,
-      totalCost,
-      comment: comment || null,
-      customerPhone: customerPhone || null,
-      status: "reserved",
-      isReserved: true,
-      deliveryDate: delivery,
-      reservedAt: new Date()
-    });
+  unitPrice = product.sellingPrice;
+  costPrice = product.costPrice;
+}
 
-    await sale.save();
+const finalPrice = (unitPrice - discount) * quantity;
+const profit = (unitPrice - costPrice - discount) * quantity;
+const totalCost = costPrice * quantity;
 
-    res.status(201).json({ message: "Commande réservée avec succès", sale });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
-  }
+const sale = new saleModel({
+  productId: product._id,
+  variantSize: variantSize || null,
+  quantity,
+  sellingPrice: unitPrice,
+  costPrice,
+  productName: product.name,
+  discount,
+  finalPrice,
+  profit,
+  totalCost,
+  comment: comment || null,
+  customerPhone: customerPhone || null,
+  status: "reserved",
+  isReserved: true,
+  deliveryDate: delivery, // inclut maintenant l'heure
+  reservedAt: new Date()
+});
+
+await sale.save();
+
+res.status(201).json({ message: "Commande réservée avec succès", sale });
+
+
+} catch (err) {
+console.error(err);
+res.status(500).json({ message: "Erreur serveur", error: err.message });
+}
 };
+
 
 // --- Marquer une commande réservée comme livrée ---
 export const deliverSale = async (req, res) => {

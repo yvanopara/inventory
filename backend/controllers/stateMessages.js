@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import TelegramBot from "node-telegram-bot-api";
 import { getDailySummary, getWeeklySummary, getMonthlySummaryForCron, getYearlySummary } from "./salesController.js";
-
+import saleModel from "../models/saleModel.js";
 // Initialisation du bot Telegram
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: false });
 
@@ -21,7 +21,7 @@ const buildSummaryMessage = (title, s) => `
 /* -----------------------------
 1️⃣ DAILY SUMMARY : chaque jour à 13h00 et 20h30
 ----------------------------- */
-const dailyTimes = ["00 13 * * *", "30 22 * * *"];
+const dailyTimes = ["00 13 * * *", "30 20 * * *"];
 dailyTimes.forEach((time) => {
 cron.schedule(time, async () => {
 try {
@@ -115,4 +115,65 @@ console.log("📩 Annual Summary envoyé");
 } catch (err) {
 console.error("AnnualSummary CRON Error :", err);
 }
+});
+
+
+
+
+/* -----------------------------
+5️⃣ RESERVATIONS : veille et jour de livraison
+----------------------------- */
+
+const sendReservations = async (targetDate, label) => {
+  try {
+    const start = new Date(targetDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 1);
+
+    const reservations = await saleModel.find({
+      status: "reserved",
+      deliveryDate: { $gte: start, $lt: end },
+    }).populate("productId", "name image");
+
+    if (!reservations.length) {
+      console.log(`⚠️ Aucune réservation pour ${label}.`);
+      return;
+    }
+
+    let message = `📦 *Réservations pour ${label} (${start.toLocaleDateString("fr-FR")})*\n\n`;
+    reservations.forEach((resv, i) => {
+      message += `*${i + 1}.* ${resv.productId?.name || resv.productName}\n`;
+      if (resv.variantSize) message += `Taille/Variante : ${resv.variantSize}\n`;
+      message += `Quantité : ${resv.quantity}\n`;
+      message += `Prix total : ${formatMoney(resv.finalPrice)}\n`;
+      if (resv.customerPhone) message += `📞 Client : wa.me//237${resv.customerPhone}\n`;
+      if (resv.comment) message += `📝 Commentaire : ${resv.comment}\n`;
+      message += `----------------------\n`;
+    });
+
+    await bot.sendMessage(process.env.TELEGRAM_CHAT_ID, message, { parse_mode: "Markdown" });
+    console.log(`📩 Réservations envoyées pour ${label}!`);
+  } catch (err) {
+    console.error("Reservation CRON Error :", err);
+  }
+};
+
+// --- Cron pour la veille à 21h30 ---
+cron.schedule("30 21 * * *", async () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  await sendReservations(tomorrow, "demain");
+});
+
+// --- Cron pour le jour même à 06h00 ---
+cron.schedule("0 6 * * *", async () => {
+  const today = new Date();
+  await sendReservations(today, "aujourd'hui (06h00)");
+});
+
+// --- Cron pour le jour même à 08h00 ---
+cron.schedule("0 8 * * *", async () => {
+  const today = new Date();
+  await sendReservations(today, "aujourd'hui (08h00)");
 });
