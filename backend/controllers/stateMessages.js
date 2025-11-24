@@ -21,7 +21,7 @@ const buildSummaryMessage = (title, s) => `
 /* -----------------------------
 1️⃣ DAILY SUMMARY : chaque jour à 13h00 et 20h30
 ----------------------------- */
-const dailyTimes = ["6 15 * * *", "30 20 * * *"];
+const dailyTimes = ["30 12 * * *", "30 19 * * *"];
 dailyTimes.forEach((time) => {
 cron.schedule(time, async () => {
 try {
@@ -42,7 +42,7 @@ console.error("DailySummary CRON Error :", err);
 /* -----------------------------
 2️⃣ WEEKLY SUMMARY : chaque dimanche à 15h00 et tous les jours à 13h01 et 20h30
 ----------------------------- */
-const weeklyTimes = ["00 15 * * 0", "5 15 * * *", "30 20 * * *"];
+const weeklyTimes = ["00 15 * * 0", "31 12 * * *", "31 19 * * *"];
 weeklyTimes.forEach((time) => {
 cron.schedule(time, async () => {
 try {
@@ -88,9 +88,9 @@ console.error("MonthlySummary CRON Error :", err);
 });
 
 /* -----------------------------
-3️⃣.1 MONTHLY SUMMARY : tous les jours à 20h30 (optionnel)
+3️⃣.1 MONTHLY SUMMARY : tous les jours à 19h32 (optionnel)
 ----------------------------- */
-cron.schedule("30 20 * * *", async () => {
+cron.schedule("32 19 * * *", async () => {
 try {
 const { summary } = await getMonthlySummaryForCron();
 if (!summary) return;
