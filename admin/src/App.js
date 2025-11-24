@@ -16,6 +16,7 @@ import StockMovements from "./pages/stockMovement/StockMovements";
 import YearlySummary from "./pages/saleHistory/YearlySummary/YearlySummary";
 import YearlySummaryChart from "./pages/saleGraphs/YearlySummary/YearlySummary";
 import SidebarMenu from "./components/SidebarMenu/SidebarMenu";
+import CancelSale from "./pages/cancelSale/cancelSale";
 
 function AppContent() {
   const location = useLocation();
@@ -41,6 +42,7 @@ function AppContent() {
         <Route path="/graph/month" element={<MonthlySalesChart />} /> 
         <Route path="/graph/anual" element={<YearlySummaryChart />} /> 
         <Route path="/stock-movement" element={<StockMovements/>} />
+        <Route path="/cancel-sale" element={<CancelSale/>} />
       </Routes>
     </>
   );

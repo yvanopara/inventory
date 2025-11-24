@@ -160,72 +160,72 @@ export const cancelSale = async (req, res) => {
 
 // --- Réserver une commande ---
 export const reserveSale = async (req, res) => {
-try {
-const { productId, variantSize, quantity, discount = 0, customerPhone, comment, deliveryDateTime } = req.body;
+  try {
+    const { productId, variantSize, quantity, discount = 0, customerPhone, comment, deliveryDateTime } = req.body;
 
 
-// Vérifier que la date et l'heure de livraison sont fournies
-if (!deliveryDateTime) {
-  return res.status(400).json({ message: "La date et l'heure de livraison sont obligatoires" });
-}
+    // Vérifier que la date et l'heure de livraison sont fournies
+    if (!deliveryDateTime) {
+      return res.status(400).json({ message: "La date et l'heure de livraison sont obligatoires" });
+    }
 
-const delivery = new Date(deliveryDateTime); // Accepte date + heure
-const now = new Date();
-if (delivery <= now) {
-  return res.status(400).json({ message: "La date et l'heure de livraison doivent être postérieures à maintenant" });
-}
+    const delivery = new Date(deliveryDateTime); // Accepte date + heure
+    const now = new Date();
+    if (delivery <= now) {
+      return res.status(400).json({ message: "La date et l'heure de livraison doivent être postérieures à maintenant" });
+    }
 
-const product = await productModel.findById(productId);
-if (!product) return res.status(404).json({ message: "Produit introuvable" });
+    const product = await productModel.findById(productId);
+    if (!product) return res.status(404).json({ message: "Produit introuvable" });
 
-let unitPrice, costPrice;
+    let unitPrice, costPrice;
 
-if (product.hasVariants) {
-  const variant = product.sizes.find(v => v.size === variantSize);
-  if (!variant) return res.status(404).json({ message: "Variante introuvable" });
-  if (variant.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
+    if (product.hasVariants) {
+      const variant = product.sizes.find(v => v.size === variantSize);
+      if (!variant) return res.status(404).json({ message: "Variante introuvable" });
+      if (variant.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
 
-  unitPrice = variant.sellingPrice;
-  costPrice = variant.costPrice;
-} else {
-  if (product.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
+      unitPrice = variant.sellingPrice;
+      costPrice = variant.costPrice;
+    } else {
+      if (product.stock < quantity) return res.status(400).json({ message: "Stock insuffisant" });
 
-  unitPrice = product.sellingPrice;
-  costPrice = product.costPrice;
-}
+      unitPrice = product.sellingPrice;
+      costPrice = product.costPrice;
+    }
 
-const finalPrice = (unitPrice - discount) * quantity;
-const profit = (unitPrice - costPrice - discount) * quantity;
-const totalCost = costPrice * quantity;
+    const finalPrice = (unitPrice - discount) * quantity;
+    const profit = (unitPrice - costPrice - discount) * quantity;
+    const totalCost = costPrice * quantity;
 
-const sale = new saleModel({
-  productId: product._id,
-  variantSize: variantSize || null,
-  quantity,
-  sellingPrice: unitPrice,
-  costPrice,
-  productName: product.name,
-  discount,
-  finalPrice,
-  profit,
-  totalCost,
-  comment: comment || null,
-  customerPhone: customerPhone || null,
-  status: "reserved",
-  isReserved: true,
-  deliveryDate: delivery, // inclut maintenant l'heure
-  reservedAt: new Date()
-});
+    const sale = new saleModel({
+      productId: product._id,
+      variantSize: variantSize || null,
+      quantity,
+      sellingPrice: unitPrice,
+      costPrice,
+      productName: product.name,
+      discount,
+      finalPrice,
+      profit,
+      totalCost,
+      comment: comment || null,
+      customerPhone: customerPhone || null,
+      status: "reserved",
+      isReserved: true,
+      deliveryDate: delivery, // inclut maintenant l'heure
+      reservedAt: new Date()
+    });
 
-await sale.save();
+    await sale.save();
 
-res.status(201).json({ message: "Commande réservée avec succès", sale });
+    res.status(201).json({ message: "Commande réservée avec succès", sale });
 
 
-} catch (err) {
-console.error(err);
-res.status(500).json({ message: "Erreur serveur", error: err.message });
-}
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
 };
 
 
@@ -292,7 +292,59 @@ const computeSummary = (sales) => {
 };
 
 
-// --- Daily Summary ---
+// Daily summary
+export const gettDailySummary = async (req, res) => {
+  try {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    const sales = await saleModel
+      .find({ createdAt: { $gte: start, $lte: end }, status: "active" })
+      .populate("productId", "name image")
+      .sort({ createdAt: -1 });
+
+    const dailySales = sales.map((sale) => ({
+      productPhoto: sale.productId?.image || "",
+      productName: sale.productName || sale.productId?.name,
+      quantity: sale.quantity,
+      comment: sale.comment || "",
+      proofImage: sale.proofImage || "",
+      customerPhone: sale.customerPhone || "",
+      date: sale.createdAt,
+      discount: sale.discount || 0,
+      revenue: sale.finalPrice || 0,
+      profit: sale.profit || 0,
+      cost: sale.totalCost || 0,
+    }));
+
+    const computeSummary = (sales) => {
+      let totalQuantity = 0, totalRevenue = 0, totalProfit = 0, totalCost = 0;
+      sales.forEach(sale => {
+        totalQuantity += sale.quantity || 0;
+        totalRevenue += sale.revenue || 0;
+        totalProfit += sale.profit || 0;
+        totalCost += sale.cost || 0;
+      });
+      return { totalQuantity, totalRevenue, totalProfit, totalCost };
+    };
+
+    const summary = computeSummary(dailySales);
+
+    return res.status(200).json({
+      date: new Date().toLocaleDateString("fr-FR"),
+      sales: dailySales,
+      summary,
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+//2 --- Daily Summary ---
 export const getDailySummary = async (req, res, internal = false) => {
   try {
     const start = new Date();
@@ -354,9 +406,105 @@ export const getDailySummary = async (req, res, internal = false) => {
   }
 };
 
+// weekly summary
+export const gettWeeklySummary = async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Début semaine = Lundi
+    const start = new Date(now);
+    start.setDate(now.getDate() - now.getDay() + 1);
+    start.setHours(0, 0, 0, 0);
+
+    // Fin semaine = Dimanche
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    end.setHours(23, 59, 59, 999);
+
+    // Base des jours VIDE pour ton front-end
+    const days = {
+      "Lundi": [],
+      "Mardi": [],
+      "Mercredi": [],
+      "Jeudi": [],
+      "Vendredi": [],
+      "Samedi": [],
+      "Dimanche": []
+    };
+
+    // Récupérer les ventes
+    const sales = await saleModel
+      .find({ createdAt: { $gte: start, $lte: end }, status: "active" })
+      .populate("productId", "name image")
+      .sort({ createdAt: 1 });
+
+    // Répartition par jour
+    sales.forEach((sale) => {
+      const d = new Date(sale.createdAt);
+      const dayName = d.toLocaleDateString('fr-FR', { weekday: 'long' });
+
+      const normalizedDay =
+        dayName.charAt(0).toUpperCase() + dayName.slice(1); // "lundi" → "Lundi"
+
+      const saleData = {
+        productPhoto: sale?.productId?.image || "",
+        productName: sale?.productName || sale?.productId?.name || "Produit inconnu",
+        quantity: sale?.quantity ?? 0,
+        comment: sale?.comment || "",
+        proofImage: sale?.proofImage || "",
+        customerPhone: sale?.customerPhone || "",
+        date: sale?.createdAt,
+        discount: sale?.discount || 0,
+        revenue: sale?.finalPrice || 0,
+        profit: sale?.profit || 0,
+        cost: sale?.totalCost || 0,
+      };
+
+      if (days[normalizedDay]) {
+        days[normalizedDay].push(saleData);
+      }
+    });
+
+    // Calcul summary
+    const summary = Object.values(days).flat().reduce(
+      (acc, sale) => {
+        acc.totalQuantity += sale.quantity;
+        acc.totalRevenue += sale.revenue;
+        acc.totalProfit += sale.profit;
+        acc.totalCost += sale.cost;
+        return acc;
+      },
+      {
+        totalQuantity: 0,
+        totalRevenue: 0,
+        totalProfit: 0,
+        totalCost: 0,
+      }
+    );
+
+    return res.status(200).json({
+      startDate: start,
+      endDate: end,
+      dailySales: days,   // IMPORTANT ! c’est ce que ton front attend
+      summary,
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Erreur serveur",
+      error: err.message,
+      dailySales: {},
+      summary: {}
+    });
+  }
+};
 
 
-// --- Weekly Summary ---
+
+
+
+// 2 --- Weekly Summary ---
 export const getWeeklySummary = async (req, res, internal = false) => {
   try {
     const now = new Date();
@@ -425,67 +573,103 @@ export const getWeeklySummary = async (req, res, internal = false) => {
 
 
 // --- Monthly Summary ---
-export const getMonthlySummary = async (req, res, internal = false) => {
+export const gettMonthlySummary = async (req, res) => {
   try {
     const now = new Date();
+
+    // Début et fin du mois
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     start.setHours(0, 0, 0, 0);
+
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     end.setHours(23, 59, 59, 999);
 
-    
-const sales = await saleModel
-  .find({ createdAt: { $gte: start, $lte: end }, status: "active" })
-  .populate("productId", "name image")
-  .sort({ createdAt: 1 });
+    // Récupération des ventes actives du mois
+    const sales = await saleModel
+      .find({ createdAt: { $gte: start, $lte: end }, status: "active" })
+      .populate("productId", "name image")
+      .sort({ createdAt: 1 });
 
-const monthlySales = sales.map((sale) => ({
-  productPhoto: sale.productId?.image || "",
-  productName: sale.productName || sale.productId?.name || "Produit inconnu",
-  quantity: sale.quantity,
-  proofImage: sale.proofImage || "",
-  revenue: sale.finalPrice || 0,
-  profit: sale.profit || 0,
-  cost: sale.totalCost || 0,
-  status: sale.status || "",
-  date: sale.createdAt,
-  customerPhone: sale.customerPhone || "",
-}));
+    // Formatage des ventes
+    const formattedSales = sales.map((sale) => ({
+      productPhoto: sale.productId?.image || "",
+      productName: sale.productName || sale.productId?.name || "Produit inconnu",
+      quantity: sale.quantity,
+      revenue: sale.finalPrice || 0,
+      profit: sale.profit || 0,
+      cost: sale.totalCost || 0,
+      proofImage: sale.proofImage || "",
+      status: sale.status || "",
+      date: sale.createdAt,
+      customerPhone: sale.customerPhone || "",
+    }));
 
-const computeSummary = (salesArray) => {
-  let totalQuantity = 0, totalRevenue = 0, totalProfit = 0, totalCost = 0;
-  salesArray.forEach((sale) => {
-    totalQuantity += sale.quantity || 0;
-    totalRevenue += sale.revenue || 0;
-    totalProfit += sale.profit || 0;
-    totalCost += sale.cost || 0;
-  });
-  return { totalQuantity, totalRevenue, totalProfit, totalCost };
-};
+    // Génération des jours du mois (pour remplir weeklySummaries)
+    const daysInMonth = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const date = new Date(d);
+      const daySales = formattedSales.filter(
+        (sale) =>
+          new Date(sale.date).toDateString() === date.toDateString()
+      );
 
-const summary = computeSummary(monthlySales);
+      daysInMonth.push({
+        date,
+        sales: daySales,
+      });
+    }
 
-if (internal) {
-  return { summary, sales: monthlySales };
-}
+    // Transformer le mois en semaines (comme ton frontend l'attend)
+    const weeklySummaries = [];
+    let currentWeek = [];
 
-res.status(200).json({
-  month: now.toLocaleString("fr-FR", { month: "long" }),
-  year: now.getFullYear(),
-  sales: monthlySales,
-  summary,
-});
+    daysInMonth.forEach((day) => {
+      if (currentWeek.length === 0) {
+        currentWeek.push(day);
+      } else {
+        const lastDay = currentWeek[currentWeek.length - 1].date;
+        const diff = (day.date - lastDay) / (1000 * 60 * 60 * 24);
 
+        // Nouvelle semaine si on change de lundi ou si >1 jour de saut
+        if (day.date.getDay() === 1 || diff > 1) {
+          weeklySummaries.push({ days: currentWeek });
+          currentWeek = [day];
+        } else {
+          currentWeek.push(day);
+        }
+      }
+    });
+
+    if (currentWeek.length > 0) weeklySummaries.push({ days: currentWeek });
+
+    // Résumé total (global)
+    const totalSummary = formattedSales.reduce(
+      (acc, sale) => {
+        acc.totalQuantity += sale.quantity || 0;
+        acc.totalRevenue += sale.revenue || 0;
+        acc.totalProfit += sale.profit || 0;
+        acc.totalCost += sale.cost || 0;
+        return acc;
+      },
+      { totalQuantity: 0, totalRevenue: 0, totalProfit: 0, totalCost: 0 }
+    );
+
+    return res.status(200).json({
+      month: now.toLocaleString("fr-FR", { month: "long" }),
+      year: now.getFullYear(),
+      totalSummary,
+      weeklySummaries,
+    });
 
   } catch (err) {
     console.error("Erreur dans getMonthlySummary :", err);
-    if (!internal) {
-      return res.status(500).json({ message: "Erreur serveur", error: err.message });
-    } else {
-      return { error: err.message };
-    }
+    return res.status(500).json({
+      message: "Erreur serveur",
+      error: err.message,
+    });
   }
 };
+
 
 
 

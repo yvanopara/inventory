@@ -6,12 +6,12 @@ import {
 
   getAllSales, 
  
-  getDailySummary, 
-  getMonthlySummary, 
+  gettDailySummary, 
+  gettMonthlySummary, 
   getReservedSales, 
   getSalesSummaryDashboard, 
   getTopAndLowSellingProducts, 
-  getWeeklySummary,   getYearlySummary,   // ✅ on importe la nouvelle fonction
+  gettWeeklySummary,   getYearlySummary,   // ✅ on importe la nouvelle fonction
   reserveSale
 } from "../controllers/salesController.js";
 import upload from "../middleweres/multer.js";
@@ -23,12 +23,12 @@ const router = express.Router();
 router.post("/",userAuth, upload.single("proofImage"), addSale);
 
 // ➝ Résumé des ventes du jour 
-router.get("/summary/daily", getDailySummary);
+router.get("/summary/daily", gettDailySummary);
 
 // ➝ Résumé des ventes de la semaine
-router.get("/summary/weekly", getWeeklySummary);
+router.get("/summary/weekly", gettWeeklySummary);
 
-router.get("/summary/monthly", getMonthlySummary); 
+router.get("/summary/monthly", gettMonthlySummary); 
 
 router.get("/yearly-summary", getYearlySummary);
 router.get("/dashboard-summary", getSalesSummaryDashboard);
@@ -39,7 +39,7 @@ router.patch("/cancel/:saleId", cancelSale);
 // ➝ Réserver une commande
 router.post("/reserve", userAuth, reserveSale);
 
-// ➝ Livrer une commande réservée
+// ➝ Livrer une commande réservée 
 router.patch("/deliver/:saleId",userAuth, deliverSale); 
 
  router.get("/get-all", getAllSales); 
