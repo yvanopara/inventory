@@ -33,7 +33,7 @@ setOpenGraphs(false);
 const handleLogout = () => {
 localStorage.removeItem("token");
 sessionStorage.removeItem("token");
-handleNavigate("/login");
+handleNavigate("/");
 };
 
 return (

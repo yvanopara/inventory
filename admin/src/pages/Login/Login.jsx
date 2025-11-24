@@ -23,7 +23,7 @@ export default function Login() {
 
       if (res.data.success && res.data.token) {
         login(res.data.token);
-        navigate("/");
+        navigate("/dashboard");
       } else {
         setError(res.data.message || "Identifiants incorrects");
       }

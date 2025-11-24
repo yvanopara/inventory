@@ -24,11 +24,11 @@ function AppContent() {
   return (
     <>
       {/* Affiche le sidebar uniquement si on n'est pas sur la page login */}
-      {location.pathname !== "/login" && <SidebarMenu />}
+      {location.pathname !== "/" && <SidebarMenu />}
 
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/add" element={<AddProduct />} />
         <Route path="/products/edit/:id" element={<EditProduct />} />
