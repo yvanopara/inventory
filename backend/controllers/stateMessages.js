@@ -21,7 +21,7 @@ const buildSummaryMessage = (title, s) => `
 /* -----------------------------
 1️⃣ DAILY SUMMARY : chaque jour à 13h00 et 20h30
 ----------------------------- */
-const dailyTimes = ["48 13 * * *", "30 20 * * *"];
+const dailyTimes = ["54 13 * * *", "30 20 * * *"];
 dailyTimes.forEach((time) => {
 cron.schedule(time, async () => {
 try {
