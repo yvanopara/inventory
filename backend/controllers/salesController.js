@@ -261,6 +261,10 @@ export const deliverSale = async (req, res) => {
 
     sale.status = "active";
     sale.lastUpdated = new Date();
+
+    // 👉 Changer la date pour la date du jour de livraison
+    sale.createdAt = new Date();
+
     await sale.save();
 
     await StockMovement.create({
@@ -278,6 +282,7 @@ export const deliverSale = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
+
 
 // --- Résumés ---
 const computeSummary = (sales) => {

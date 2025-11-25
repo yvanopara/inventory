@@ -42,7 +42,7 @@ return (
 <button className="menu-toggle" onClick={() => setIsOpen(true)}> <FaBars /> </button>
 )}
 
-```
+
   <div className={`sidebar-container ${isOpen ? "visible" : ""}`}>
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
       <div className="sidebar-header">
@@ -53,7 +53,7 @@ return (
       <ul className="menu-list">
 
         {/* Accueil */}
-        <li className="menu-item dashboard-item" onClick={() => handleNavigate("/")}>
+        <li className="menu-item dashboard-item" onClick={() => handleNavigate("/dashboard")}>
           <FaChartLine className="menu-icon" />
           <span>Accueil</span>
         </li>

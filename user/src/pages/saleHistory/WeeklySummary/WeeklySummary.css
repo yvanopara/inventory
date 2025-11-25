@@ -1,4 +1,675 @@
-.monthly-summary-container {
+/* WeeklySummary.css */
+.ws-container {
+  padding: 32px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  min-height: 100vh;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+/* Loading State */
+.ws-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+.ws-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e2e8f0;
+  border-left: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: ws-spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes ws-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* HEADER */
+.ws-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  background: white;
+  padding: 28px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.ws-header-content h2 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.ws-subtitle {
+  color: #64748b;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.ws-week-badge {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* MESSAGES */
+.ws-message-container {
+  margin-bottom: 24px;
+}
+
+.ws-error {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 18px 24px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+
+.ws-error-icon {
+  font-size: 1.3rem;
+}
+
+/* STATS GRID */
+.ws-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.ws-stat-card {
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+  border-left: 4px solid;
+}
+
+.ws-stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.ws-stat-icon {
+  font-size: 2.5rem;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+.ws-stat-content {
+  flex: 1;
+}
+
+.ws-stat-value {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.ws-stat-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.ws-stat-subtitle {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* DAYS SECTION */
+.ws-days-section {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.ws-section-header {
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ws-section-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.ws-days-count {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.ws-count-badge {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* DAY CARDS */
+.ws-day-card {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ws-day-card:last-child {
+  border-bottom: none;
+}
+
+.ws-day-header {
+  padding: 20px 28px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ws-day-header:hover {
+  background: #f0f9ff;
+}
+
+.ws-day-title {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ws-day-title h4 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  min-width: 200px;
+}
+
+.ws-day-stats {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.ws-day-sales-count {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.ws-day-revenue {
+  background: #dcfce7;
+  color: #166534;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ws-day-toggle {
+  font-size: 1.2rem;
+  color: #64748b;
+  transition: transform 0.3s ease;
+}
+
+.ws-day-content {
+  background: #fafafa;
+}
+
+.ws-table-container {
+  padding: 0;
+}
+
+.ws-table-scroll {
+  overflow-x: auto;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.ws-sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1200px;
+}
+
+.ws-sales-table th {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 16px 12px;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+}
+
+.ws-sales-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.ws-even-row {
+  background: #ffffff;
+}
+
+.ws-odd-row {
+  background: #f8fafc;
+}
+
+.ws-even-row:hover,
+.ws-odd-row:hover {
+  background: #f0f9ff;
+}
+
+/* CELL STYLES */
+.ws-product-cell {
+  font-weight: 600;
+}
+
+.ws-product-name {
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: inline-block;
+  font-size: 0.9rem;
+}
+
+.ws-quantity-cell {
+  text-align: center;
+}
+
+.ws-quantity-badge {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  min-width: 30px;
+  display: inline-block;
+}
+
+.ws-revenue-cell {
+  font-weight: 700;
+  color: #059669;
+  text-align: right;
+}
+
+.ws-profit-cell {
+  font-weight: 700;
+  color: #10b981;
+  text-align: right;
+}
+
+.ws-cost-cell {
+  font-weight: 600;
+  color: #ef4444;
+  text-align: right;
+}
+
+.ws-comment-cell {
+  max-width: 180px;
+}
+
+.ws-comment-content {
+  position: relative;
+}
+
+.ws-comment-text {
+  background: #f0f9ff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 3px solid #0ea5e9;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  display: block;
+}
+
+.ws-no-comment {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.ws-time-cell {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* IMAGES */
+.ws-product-image,
+.ws-proof-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ws-product-image:hover,
+.ws-proof-image:hover {
+  transform: scale(1.1);
+  border-color: #4f46e5;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+}
+
+.ws-no-image,
+.ws-no-proof {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: #94a3b8;
+  border-radius: 10px;
+  border: 2px dashed #e2e8f0;
+  font-size: 1.1rem;
+}
+
+.ws-no-proof {
+  width: 50px;
+  height: 50px;
+  font-size: 1rem;
+}
+
+/* WEEK SUMMARY */
+.ws-week-summary {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.ws-summary-header {
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ws-summary-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  text-align: center;
+}
+
+.ws-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 28px;
+}
+
+.ws-summary-card {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  padding: 24px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.ws-summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.ws-summary-card.ws-profit-card {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-color: #bbf7d0;
+}
+
+.ws-summary-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: white;
+}
+
+.ws-summary-content {
+  flex: 1;
+}
+
+.ws-summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.ws-summary-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* IMAGE MODAL */
+.ws-image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: ws-fadeIn 0.3s ease;
+}
+
+.ws-modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  animation: ws-scaleIn 0.3s ease;
+}
+
+.ws-modal-close {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  background: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.ws-modal-close:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.ws-modal-image {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes ws-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ws-scaleIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .ws-container {
+    padding: 24px;
+  }
+  
+  .ws-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .ws-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .ws-day-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ws-container {
+    padding: 16px;
+  }
+  
+  .ws-header-content h2 {
+    font-size: 1.75rem;
+  }
+  
+  .ws-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ws-stat-card {
+    padding: 24px;
+  }
+  
+  .ws-section-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .ws-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ws-day-stats {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .ws-sales-table {
+    min-width: 1100px;
+  }
+  
+  .ws-comment-cell {
+    max-width: 150px;
+  }
+  
+  .ws-day-header {
+    padding: 16px 20px;
+  }
+  
+  .ws-day-title h4 {
+    font-size: 1.1rem;
+    min-width: auto;
+  }
+}
+.ws-phone-cell {
+  font-weight: 600;
+  color: #2563eb;
+  font-size: 14px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.ws-phone-badge {
+  background-color: #dbeafe;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid #93c5fd;
+  display: inline-block;
+}
+
+
+
+
+/* .monthly-summary-container {
   margin: 20px auto;
   max-width: 1200px;
   background: #fff;
@@ -86,4 +757,4 @@ h2 {
 .error {
   color: red;
   text-align: center;
-}
+} */
