@@ -756,20 +756,23 @@ export const getReservedSales = async (req, res) => {
       .populate("productId", "name")
       .sort({ reservedAt: -1 });
 
-    if (!reservedSales.length) {
-      return res.status(404).json({ message: "Aucune commande réservée trouvée" });
-    }
-
-    res.status(200).json({
+    // 👉 Ne pas renvoyer 404 si aucune réservation
+    return res.status(200).json({
       success: true,
       count: reservedSales.length,
       reservedSales,
     });
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: "Erreur serveur", error: err.message });
+    return res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+      error: err.message,
+    });
   }
 };
+
 
 
 
