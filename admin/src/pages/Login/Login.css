@@ -80,8 +80,8 @@
 }
 
 .input-group input {
-  width: 100%;
-  padding: 1.25rem 1.5rem;
+  width: 95%;
+  padding: 1.25rem 1.3rem;
   border: 2px solid #f1f5f9;
   border-radius: 16px;
   font-size: 1rem;
@@ -237,7 +237,7 @@
   }
   
   .input-group input {
-    padding: 1.1rem 1.25rem;
+    padding: 1.1rem 1.20rem;
   }
   
   .login-button {
