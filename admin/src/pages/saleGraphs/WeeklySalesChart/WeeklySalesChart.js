@@ -1,7 +1,8 @@
 // src/components/WeeklySalesChart.js
 import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
-import axios from "axios";
+
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,6 +13,7 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
+import { api } from "../../../api/api";
 
 ChartJS.register(
   CategoryScale,
@@ -29,7 +31,8 @@ const WeeklySalesChart = () => {
   useEffect(() => {
     const fetchWeeklySummary = async () => {
       try {
-        const res = await axios.get("https://inventory2-uexd.onrender.com/api/sales/summary/weekly"); // adapter le chemin API
+        // ⬅️ Utilisation du même client API
+        const res = await api.get("/api/sales/summary/weekly");
         const data = res.data;
 
         // Extraire les jours et les ventes
@@ -75,7 +78,7 @@ const WeeklySalesChart = () => {
           },
           scales: {
             y: { beginAtZero: true },
-            x: { title: { display: true, text: "Jokur" } }
+            x: { title: { display: true, text: "Jour" } } // corrigé
           }
         }}
       />
