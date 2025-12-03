@@ -536,7 +536,7 @@
   }
   
   .search-box {
-    min-width: auto;
+    max-width:90%;
   }
 }
 

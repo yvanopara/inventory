@@ -1,0 +1,521 @@
+/* Page d'abonnement */
+.subscription-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.expired-page {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Container principal */
+.expired-container {
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.expired-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #ff6b6b, #ee5a52);
+}
+
+/* Icône d'expiration */
+.expired-icon {
+  color: #ff6b6b;
+  margin-bottom: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1.05); 
+  }
+}
+
+/* Titre et message */
+.expired-title {
+  font-size: 2.5rem;
+  color: #2d3748;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.expired-message {
+  font-size: 1.2rem;
+  color: #718096;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.highlight-date {
+  color: #667eea;
+  font-weight: 600;
+  background: #f7fafc;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+}
+
+/* Contact Info */
+.contact-info {
+  margin: 30px 0;
+}
+
+.contact-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+  padding: 25px;
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.contact-icon {
+  font-size: 3rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.contact-details h3 {
+  margin: 0 0 8px 0;
+  color: #2d3748;
+  font-size: 1.3rem;
+}
+
+.phone-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #667eea;
+  margin: 8px 0;
+  letter-spacing: 1px;
+}
+
+.contact-hours {
+  color: #718096;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Pricing Section */
+.pricing-section {
+  margin: 40px 0;
+}
+
+.pricing-title {
+  font-size: 1.8rem;
+  color: #2d3748;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+}
+
+.plan-card {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+  position: relative;
+  text-align: left;
+}
+
+.plan-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-color: #667eea;
+}
+
+.plan-card.popular {
+  border-color: #667eea;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.plan-header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.plan-header h3 {
+  margin: 0 0 10px 0;
+  color: #2d3748;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.plan-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #667eea;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.plan-features li {
+  padding: 8px 0;
+  color: #4a5568;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.plan-features li:last-child {
+  border-bottom: none;
+}
+
+/* Action Section */
+.action-section {
+  margin-top: 40px;
+}
+
+.renew-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 18px 40px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.renew-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+}
+
+.renew-note {
+  color: #718096;
+  font-size: 0.9rem;
+  margin-top: 12px;
+}
+
+/* Notification active */
+.subscription-notification {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  min-width: 300px;
+  z-index: 1000;
+  border-left: 4px solid #48bb78;
+  animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.notification-icon {
+  font-size: 2rem;
+  background: linear-gradient(135deg, #48bb78, #38a169);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.notification-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notification-text strong {
+  color: #2d3748;
+  font-size: 1rem;
+}
+
+.notification-text span {
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.days-count {
+  color: #48bb78;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.notification-text small {
+  color: #718096;
+  font-size: 0.8rem;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.notification-close:hover {
+  color: #718096;
+  background: #f7fafc;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .expired-container {
+    padding: 25px;
+    margin: 15px;
+  }
+  
+  .expired-title {
+    font-size: 2rem;
+  }
+  
+  .expired-message {
+    font-size: 1rem;
+  }
+  
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .contact-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+    padding: 20px;
+  }
+  
+  .phone-number {
+    font-size: 1.5rem;
+  }
+  
+  .plan-card {
+    padding: 20px;
+  }
+  
+  .subscription-notification {
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    min-width: auto;
+  }
+  
+  .notification-content {
+    gap: 12px;
+  }
+  
+  .renew-btn {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+  }
+}
+
+/* Styles améliorés pour le bouton de fermeture */
+.notification-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-close:hover {
+  color: #718096;
+  background: #f7fafc;
+  transform: scale(1.1);
+}
+
+/* Animation de fermeture */
+.notification-closing {
+  animation: slideOut 0.3s ease forwards;
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Styles conditionnels pour les jours restants */
+.days-count.warning {
+  color: #ed8936;
+  font-weight: 700;
+}
+
+.days-count.danger {
+  color: #e53e3e;
+  font-weight: 700;
+  animation: pulse 1s infinite;
+}
+
+/* Amélioration pour les messages d'alerte */
+.notification-content.warning {
+  border-left-color: #ed8936;
+}
+
+.notification-content.danger {
+  border-left-color: #e53e3e;
+}
+
+.notification-icon.warning {
+  background: linear-gradient(135deg, #ed8936, #dd6b20);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.notification-icon.danger {
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+/* Styles pour la période de grâce */
+.grace-period-info {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border: 2px solid #2196f3;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.grace-icon {
+  font-size: 2rem;
+  color: #2196f3;
+  flex-shrink: 0;
+}
+
+.grace-content {
+  flex: 1;
+}
+
+.grace-content h3 {
+  margin: 0 0 10px 0;
+  color: #1565c0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.grace-content p {
+  margin: 0 0 10px 0;
+  color: #1976d2;
+  line-height: 1.5;
+}
+
+.grace-content p:last-child {
+  margin-bottom: 0;
+}
+
+.grace-content strong {
+  color: #0d47a1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .grace-period-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .grace-icon {
+    align-self: center;
+  }
+}

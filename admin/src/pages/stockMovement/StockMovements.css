@@ -530,7 +530,7 @@
   }
   
   .search-box {
-    min-width: auto;
+    max-width: 80%;
   }
   
   .filter-buttons {
