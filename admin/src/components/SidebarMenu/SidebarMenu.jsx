@@ -140,9 +140,9 @@ return (
         </li>
 
         {/* Paramètres */}
-        <li className="menu-item" onClick={() => handleNavigate("/settings")}>
+        <li className="menu-item" onClick={() => handleNavigate("/finance")}>
           <FaCog className="menu-icon" />
-          <span>Paramètres</span>
+          <span>Finances</span>
         </li>
 
         {/* Déconnexion */}
