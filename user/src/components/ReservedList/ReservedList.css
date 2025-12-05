@@ -361,7 +361,7 @@
   
   .reserved-card {
     min-width: 320px;
-    height: 400px;
+    height: 420px;
   }
   
   .card-content {
@@ -369,7 +369,6 @@
     gap: 12px;
   }
 }
-
 
 
 
