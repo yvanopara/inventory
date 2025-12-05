@@ -12,7 +12,8 @@ import {
   getSalesSummaryDashboard, 
   getTopAndLowSellingProducts, 
   gettWeeklySummary,   getYearlySummary,   // ✅ on importe la nouvelle fonction
-  reserveSale
+  reserveSale,
+  deleteReservation
 } from "../controllers/salesController.js";
 import upload from "../middleweres/multer.js";
 import userAuth from "../middleweres/userAuth.js";
@@ -41,6 +42,7 @@ router.post("/reserve", userAuth, reserveSale);
 
 // ➝ Livrer une commande réservée 
 router.patch("/deliver/:saleId",userAuth, deliverSale); 
+router.delete("/delete-reserve/:saleId", userAuth, deleteReservation);
 
  router.get("/get-all", getAllSales); 
  router.get("/get-reserve", getReservedSales); 

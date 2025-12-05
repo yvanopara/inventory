@@ -108,9 +108,7 @@ export default function ReserveSales() {
 
   // --- Supprimer une réservation ---
   const handleDeleteReservation = async (reservationId) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette réservation ?")) {
-      return;
-    }
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette réservation ?")) return;
 
     setDeletingId(reservationId);
     try {
@@ -119,15 +117,16 @@ export default function ReserveSales() {
         headers: { token },
       });
 
-      if (res.data.success) {
-        toast.success("✅ Réservation supprimée avec succès !");
-        fetchReservedSales();
+      if (res.status === 200) {
+        toast.success("⬆️ Réservation annulée avec succès !"); // Flèche verte
+        // Retirer immédiatement la réservation annulée de la liste
+        setReservedSales(prev => prev.filter(sale => sale._id !== reservationId));
       } else {
-        toast.error(res.data.message || "Erreur lors de la suppression ❌");
+        toast.error(res.data.message || "Erreur lors de l'annulation ❌");
       }
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Erreur lors de la suppression ❌");
+      toast.error(err.response?.data?.message || "Erreur lors de l'annulation ❌");
     } finally {
       setDeletingId(null);
     }
@@ -158,13 +157,11 @@ export default function ReserveSales() {
         <div className="rs-form-card">
           <div className="rs-form-header">
             <h2>📋 Nouvelle Réservation</h2>
-            <div className="rs-form-indicator">
-              {selectedProduct && (
-                <div className="rs-price-preview">
-                  Prix final: <span className="rs-final-price">{calculateFinalPrice().toLocaleString()} FCFA</span>
-                </div>
-              )}
-            </div>
+            {selectedProduct && (
+              <div className="rs-price-preview">
+                Prix final: <span className="rs-final-price">{calculateFinalPrice().toLocaleString()} FCFA</span>
+              </div>
+            )}
           </div>
 
           {loadingProducts ? (
@@ -177,11 +174,11 @@ export default function ReserveSales() {
               <div className="rs-form-grid">
                 <div className="rs-form-group">
                   <label className="rs-label">Produit *</label>
-                  <select 
-                    className="rs-select" 
-                    name="productId" 
-                    value={form.productId} 
-                    onChange={handleProductChange} 
+                  <select
+                    className="rs-select"
+                    name="productId"
+                    value={form.productId}
+                    onChange={handleProductChange}
                     required
                   >
                     <option value="">-- Sélectionner un produit --</option>
@@ -196,11 +193,11 @@ export default function ReserveSales() {
                 {selectedProduct?.hasVariants && (
                   <div className="rs-form-group">
                     <label className="rs-label">Taille / Variante *</label>
-                    <select 
-                      className="rs-select" 
-                      name="variantSize" 
-                      value={form.variantSize} 
-                      onChange={handleChange} 
+                    <select
+                      className="rs-select"
+                      name="variantSize"
+                      value={form.variantSize}
+                      onChange={handleChange}
                       required
                     >
                       <option value="">-- Choisir une taille --</option>
@@ -215,38 +212,38 @@ export default function ReserveSales() {
 
                 <div className="rs-form-group">
                   <label className="rs-label">Quantité *</label>
-                  <input 
-                    type="number" 
-                    className="rs-input" 
-                    name="quantity" 
-                    value={form.quantity} 
-                    onChange={handleChange} 
-                    min="1" 
-                    required 
+                  <input
+                    type="number"
+                    className="rs-input"
+                    name="quantity"
+                    value={form.quantity}
+                    onChange={handleChange}
+                    min="1"
+                    required
                   />
                 </div>
 
                 <div className="rs-form-group">
                   <label className="rs-label">Remise (%)</label>
-                  <input 
-                    type="number" 
-                    className="rs-input" 
-                    name="discount" 
-                    value={form.discount} 
-                    onChange={handleChange} 
-                    min="0" 
+                  <input
+                    type="number"
+                    className="rs-input"
+                    name="discount"
+                    value={form.discount}
+                    onChange={handleChange}
+                    min="0"
                     max="100"
                   />
                 </div>
 
                 <div className="rs-form-group">
                   <label className="rs-label">Téléphone client</label>
-                  <input 
-                    type="text" 
-                    className="rs-input" 
-                    name="customerPhone" 
-                    value={form.customerPhone} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    className="rs-input"
+                    name="customerPhone"
+                    value={form.customerPhone}
+                    onChange={handleChange}
                     placeholder="+225 XX XX XX XX"
                   />
                 </div>
@@ -265,10 +262,10 @@ export default function ReserveSales() {
 
                 <div className="rs-form-group rs-full-width">
                   <label className="rs-label">Commentaire</label>
-                  <textarea 
-                    className="rs-textarea" 
-                    name="comment" 
-                    value={form.comment} 
+                  <textarea
+                    className="rs-textarea"
+                    name="comment"
+                    value={form.comment}
                     onChange={handleChange}
                     placeholder="Notes supplémentaires..."
                     rows="3"
@@ -276,9 +273,9 @@ export default function ReserveSales() {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
-                className={`rs-submit-btn ${isSubmitting ? 'rs-submitting' : ''}`}
+              <button
+                type="submit"
+                className={`rs-submit-btn ${isSubmitting ? "rs-submitting" : ""}`}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -287,7 +284,7 @@ export default function ReserveSales() {
                     Réservation en cours...
                   </>
                 ) : (
-                  '📦 Réserver la Commande'
+                  "📦 Réserver la Commande"
                 )}
               </button>
             </form>
@@ -333,51 +330,29 @@ export default function ReserveSales() {
                 </thead>
                 <tbody>
                   {reservedSales.map((sale, index) => (
-                    <tr key={sale._id} className={index % 2 === 0 ? 'rs-even-row' : 'rs-odd-row'}>
-                      <td className="rs-product-cell">
-                        <span className="rs-product-name">{sale.productName}</span>
-                      </td>
-                      <td className="rs-quantity-cell">
-                        <span className="rs-quantity-badge">{sale.quantity}</span>
-                      </td>
-                      <td className="rs-price-cell">{sale.finalPrice?.toLocaleString()} FCFA</td>
-                      <td className="rs-phone-cell">
-                        {sale.customerPhone ? (
-                          <a href={`tel:${sale.customerPhone}`} className="rs-phone-link">
-                            {sale.customerPhone}
-                          </a>
-                        ) : (
-                          <span className="rs-no-phone">—</span>
-                        )}
-                      </td>
-                      <td className="rs-date-cell">
-                        {new Date(sale.deliveryDate).toLocaleString('fr-FR', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
+                    <tr key={sale._id} className={index % 2 === 0 ? "rs-even-row" : "rs-odd-row"}>
+                      <td>{sale.productName}</td>
+                      <td>{sale.quantity}</td>
+                      <td>{sale.finalPrice?.toLocaleString()} FCFA</td>
+                      <td>{sale.customerPhone || "—"}</td>
+                      <td>
+                        {new Date(sale.deliveryDate).toLocaleString("fr-FR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </td>
-                      <td className="rs-comment-cell">
-                        {sale.comment ? (
-                          <span className="rs-comment-text">{sale.comment}</span>
-                        ) : (
-                          <span className="rs-no-comment">—</span>
-                        )}
-                      </td>
-                      <td className="rs-actions-cell">
+                      <td>{sale.comment || "—"}</td>
+                      <td>
                         <button
-                          className={`rs-delete-btn ${deletingId === sale._id ? 'rs-deleting' : ''}`}
+                          className={`rs-delete-btn ${deletingId === sale._id ? "rs-deleting" : ""}`}
                           onClick={() => handleDeleteReservation(sale._id)}
                           disabled={deletingId === sale._id}
                           title="Supprimer la réservation"
                         >
-                          {deletingId === sale._id ? (
-                            <div className="rs-delete-spinner"></div>
-                          ) : (
-                            '🗑️'
-                          )}
+                          {deletingId === sale._id ? <div className="rs-delete-spinner"></div> : "🗑️"}
                         </button>
                       </td>
                     </tr>
@@ -391,6 +366,8 @@ export default function ReserveSales() {
     </div>
   );
 }
+
+
 
 
 

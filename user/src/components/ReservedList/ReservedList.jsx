@@ -1,13 +1,29 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react"; 
+import axios from "axios"; 
 import "./ReservedList.css";
 import { toast } from "react-toastify";
 import { backendUrl } from "../../App";
 
+// Fonction pour formater les dates ISO en format humain français
+const formatISODate = (isoString) => {
+  if (!isoString) return "Date inconnue";
+
+  const date = new Date(isoString);
+
+  return date.toLocaleString("fr-FR", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+};
+
 const ReservedList = () => {
   const [reservedSales, setReservedSales] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState(""); // <-- message d'erreur pour l'UI
+  const [errorMsg, setErrorMsg] = useState("");
 
   const parseDateDMY = (dateStr) => {
     if (!dateStr) return new Date();
@@ -21,33 +37,22 @@ const ReservedList = () => {
       setErrorMsg("");
       try {
         const res = await axios.get(`${backendUrl}/api/sales/get-reserve`, {
-          timeout: 10000, // timeout raisonnable
+          timeout: 10000,
         });
 
-        // DEBUG: log complet pour la console
-        console.debug("fetchReservedSales response:", res);
-
-        // Si backend répond OK et fournit success + reservedSales
-        if (res.status === 200 && res.data && res.data.success) {
+        if (res.status === 200 && res.data?.success) {
           const sortedSales = [...(res.data.reservedSales || [])].sort(
             (a, b) => parseDateDMY(a.deliveryDate) - parseDateDMY(b.deliveryDate)
           );
           setReservedSales(sortedSales);
         } else {
-          // Pas d'erreur fatale : on considère qu'il n'y a simplement pas de réservations
           setReservedSales(res.data?.reservedSales || []);
-          // Ne pas utiliser toast ici (tu l'as demandé)
-          console.info("Aucune réservation retournée ou success=false", res.data);
         }
       } catch (err) {
-        // Ne plus afficher le toast d'erreur ici — on affiche un message dans l'UI
-        console.error("Erreur fetchReservedSales:", err);
-        // Extraire message utile s'il existe
         const serverMessage = err.response?.data?.message;
         const status = err.response?.status;
         const message = serverMessage || (status ? `Erreur serveur ${status}` : err.message);
         setErrorMsg(`Impossible de charger les réservations — ${message}`);
-        // On vide la liste côté UI pour éviter ancien contenu
         setReservedSales([]);
       } finally {
         setLoading(false);
@@ -76,12 +81,10 @@ const ReservedList = () => {
         setReservedSales((prev) => prev.filter((sale) => sale._id !== saleId));
       }
     } catch (err) {
-      console.error("Erreur handleActivate:", err);
       toast.error(err.response?.data?.message || "Erreur lors de l'activation ❌");
     }
   };
 
-  // ... (getDeliveryStatus et styles restent identiques si tu veux)
   const getDeliveryStatus = (deliveryDate) => {
     const today = new Date();
     const delivery = parseDateDMY(deliveryDate);
@@ -95,15 +98,23 @@ const ReservedList = () => {
     return "normal";
   };
 
-  const colorGradients = [
-    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-    "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-    "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-    "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-    "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+  const statusConfig = {
+    overdue: { label: "⚠️ En retard", color: "#ef4444", bgColor: "#fef2f2" },
+    today: { label: "🎯 Aujourd'hui", color: "#3b82f6", bgColor: "#eff6ff" },
+    urgent: { label: "🔥 Urgent", color: "#f97316", bgColor: "#fff7ed" },
+    upcoming: { label: "📅 À venir", color: "#8b5cf6", bgColor: "#f5f3ff" },
+    normal: { label: "📦 Planifié", color: "#10b981", bgColor: "#f0fdf4" }
+  };
+
+  const colorThemes = [
+    { bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", text: "white" },
+    { bg: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)", text: "white" },
+    { bg: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)", text: "white" },
+    { bg: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)", text: "#1f2937" },
+    { bg: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)", text: "#1f2937" },
   ];
-  const getCardGradient = (index) => colorGradients[index % colorGradients.length];
+
+  const getCardTheme = (index) => colorThemes[index % colorThemes.length];
 
   if (loading) {
     return (
@@ -118,26 +129,26 @@ const ReservedList = () => {
 
   return (
     <div className="reserved-list">
-      <div className="reserved-header">
-        <div className="header-content">
-          <h1>📦 Commandes Réservées</h1>
-          <p>Faites défiler horizontalement pour voir toutes les commandes</p>
+      <div className="header-section">
+        <div className="header-left">
+          <h1 className="page-title">📦 Commandes Réservées</h1>
+          <p className="page-subtitle">Gestion des réservations en attente de paiement</p>
         </div>
-        <div className="header-stats">
-          <div className="stat-card">
-            <span className="stat-number">{reservedSales.length}</span>
-            <span className="stat-label">En attente</span>
+        <div className="header-right">
+          <div className="stats-card">
+            <span className="stats-number">{reservedSales.length}</span>
+            <span className="stats-label">Commandes en attente</span>
           </div>
         </div>
       </div>
 
-      {/* --- Affiche message d'erreur si la requête a vraiment échoué --- */}
       {errorMsg && (
-        <div className="fetch-error">
-          <strong>Erreur :</strong> {errorMsg}
-          <p style={{ fontSize: 12, color: "#666" }}>
-            Vérifie la console réseau (Network) pour plus de détails.
-          </p>
+        <div className="error-message">
+          <div className="error-icon">⚠️</div>
+          <div className="error-content">
+            <strong>Erreur de chargement</strong>
+            <p>{errorMsg}</p>
+          </div>
         </div>
       )}
 
@@ -145,85 +156,121 @@ const ReservedList = () => {
         <div className="empty-state">
           <div className="empty-icon">📭</div>
           <h3>{errorMsg ? "Impossible de charger les réservations" : "Aucune commande réservée"}</h3>
-          <p>{errorMsg ? "Voir l'erreur ci-dessus." : "Les nouvelles commandes réservées apparaîtront ici"}</p>
+          <p>Les nouvelles commandes réservées apparaîtront ici</p>
         </div>
       ) : (
-        <div className="horizontal-scroll-container">
-          <div className="cards-scroll-wrapper">
-            {reservedSales.map((sale, index) => {
-              const deliveryStatus = getDeliveryStatus(sale.deliveryDate);
-              const cardGradient = getCardGradient(index);
+        <div className="cards-container">
+          {reservedSales.map((sale, index) => {
+            const deliveryStatus = getDeliveryStatus(sale.deliveryDate);
+            const status = statusConfig[deliveryStatus];
+            const theme = getCardTheme(index);
 
-              return (
-                <div key={sale._id} className="reserved-card" style={{ background: cardGradient }}>
-                  <div className="card-content">
-                    <div className="card-header">
-                      <h3 className="product-name">{sale.productName}</h3>
-                      <div className={`status-badge ${deliveryStatus}`}>
-                        {deliveryStatus === "overdue" && "⚠️ Retard"}
-                        {deliveryStatus === "today" && "🎯 Aujourd'hui"}
-                        {deliveryStatus === "urgent" && "🔥 Urgent"}
-                        {deliveryStatus === "upcoming" && "📅 Bientôt"}
-                        {deliveryStatus === "normal" && "📦 Planifié"}
+            return (
+              <div 
+                key={sale._id} 
+                className="sale-card"
+                style={{ 
+                  background: theme.bg,
+                  color: theme.text
+                }}
+              >
+                <div className="card-header">
+                  <div className="product-section">
+                    <h3 className="product-name">{sale.productName}</h3>
+                    <div 
+                      className="status-badge"
+                      style={{
+                        backgroundColor: status.bgColor,
+                        color: status.color
+                      }}
+                    >
+                      {status.label}
+                    </div>
+                  </div>
+                  <div className="delivery-info">
+                    <span className="date-icon">📅</span>
+                    <span className="delivery-date">{formatISODate(sale.deliveryDate)}</span>
+                  </div>
+                </div>
+
+                <div className="card-body">
+                  <div className="details-grid">
+                    <div className="detail-item">
+                      <span className="detail-icon">📏</span>
+                      <div className="detail-content">
+                        <span className="detail-label">Taille</span>
+                        <span className="detail-value">{sale.variantSize || "-"}</span>
                       </div>
                     </div>
-
-                    <div className="main-info">
-                      <div className="info-row">
-                        <span className="info-label">📏 Taille:</span>
-                        <span className="info-value">{sale.variantSize || "-"}</span>
-                      </div>
-                      <div className="info-row">
-                        <span className="info-label">📦 Quantité:</span>
-                        <span className="info-value">{sale.quantity}</span>
-                      </div>
-                      <div className="info-row">
-                        <span className="info-label">💰 Prix unitaire:</span>
-                        <span className="info-value">{sale.sellingPrice} FCFA</span>
-                      </div>
-                      <div className="info-row">
-                        <span className="info-label">🎫 Remise:</span>
-                        <span className="info-value">{sale.discount} FCFA</span>
+                    
+                    <div className="detail-item">
+                      <span className="detail-icon">📦</span>
+                      <div className="detail-content">
+                        <span className="detail-label">Quantité</span>
+                        <span className="detail-value">{sale.quantity}</span>
                       </div>
                     </div>
-
-                    <div className="delivery-section">
-                      <div className="delivery-info">
-                        <span className="date-icon">📅</span>
-                        <span className="delivery-date">{sale.deliveryDate}</span>
+                    
+                    <div className="detail-item">
+                      <span className="detail-icon">💰</span>
+                      <div className="detail-content">
+                        <span className="detail-label">Prix unitaire</span>
+                        <span className="detail-value">{sale.sellingPrice} FCFA</span>
                       </div>
-                      <div className="customer-info">
-                        <span className="phone-icon">📞</span>
+                    </div>
+                    
+                    <div className="detail-item">
+                      <span className="detail-icon">🎫</span>
+                      <div className="detail-content">
+                        <span className="detail-label">Remise</span>
+                        <span className="detail-value">{sale.discount} FCFA</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="customer-section">
+                    <div className="customer-item">
+                      <span className="customer-icon">📞</span>
+                      <div>
+                        <span className="customer-label">Téléphone client</span>
                         <span className="customer-phone">{sale.customerPhone || "Non fourni"}</span>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="price-section">
-                      <div className="total-price">
-                        <span>Total:</span>
-                        <strong>{sale.finalPrice} FCFA</strong>
+                  {sale.comment && (
+                    <div className="comment-section">
+                      <span className="comment-icon">💬</span>
+                      <div className="comment-text">
+                        <p>{sale.comment}</p>
                       </div>
                     </div>
+                  )}
 
-                    {sale.comment && (
-                      <div className="comment-section">
-                        <div className="comment-bubble">
-                          <span className="comment-icon">💬</span>
-                          <p className="comment-text">{sale.comment}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="card-actions">
-                      <button className="activate-btn" onClick={() => handleActivate(sale._id)}>
-                        <span className="btn-icon">✅</span> Marquer payé
-                      </button>
+                  <div className="total-section">
+                    <div className="total-content">
+                      <span className="total-label">Montant total</span>
+                      <span className="total-amount">{sale.finalPrice} FCFA</span>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+
+                <div className="card-footer">
+                  <button 
+                    className="action-button"
+                    onClick={() => handleActivate(sale._id)}
+                    style={{
+                      backgroundColor: theme.text === "white" ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.1)",
+                      color: theme.text === "white" ? "#1f2937" : theme.text
+                    }}
+                  >
+                    <span className="button-icon">✅</span>
+                    Marquer comme payé
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -231,7 +278,6 @@ const ReservedList = () => {
 };
 
 export default ReservedList;
-
 
 
 

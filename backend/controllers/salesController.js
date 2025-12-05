@@ -229,6 +229,35 @@ export const reserveSale = async (req, res) => {
 };
 
 
+export const deleteReservation = async (req, res) => {
+  try {
+    const { saleId } = req.params;
+
+    if (!saleId) {
+      return res.status(400).json({ message: "L'identifiant de la réservation est requis" });
+    }
+
+    const sale = await saleModel.findById(saleId);
+
+    if (!sale) {
+      return res.status(404).json({ message: "Réservation introuvable" });
+    }
+
+    if (sale.status !== "reserved") {
+      return res.status(400).json({ message: "Seules les réservations peuvent être supprimées" });
+    }
+
+    await sale.deleteOne();
+
+    res.status(200).json({ message: "Réservation supprimée avec succès" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur", error: err.message });
+  }
+};
+
+
 // --- Marquer une commande réservée comme livrée ---
 export const deliverSale = async (req, res) => {
   try {
