@@ -42,11 +42,11 @@ const Finance = () => {
   const { daysLeft, isExpired, formattedDate } = subscriptionData;
 
   const handleCallNow = () => {
-    window.location.href = 'tel:+225693800251';
+    window.location.href = 'tel:+237693800251';
   };
 
   const handleWhatsApp = () => {
-    window.open('https://wa.me/225693800251?text=Bonjour%20je%20souhaite%20renouveler%20mon%20abonnement', '_blank');
+    window.open('https://wa.me/237693800251?text=Bonjour%20je%20souhaite%20renouveler%20mon%20abonnement', '_blank');
   };
 
   return (
